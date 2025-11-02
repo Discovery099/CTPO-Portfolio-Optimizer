@@ -292,31 +292,47 @@ class CTPOOptimizer:
             solver_map = {'OSQP': cp.OSQP, 'SCS': cp.SCS, 'ECOS': cp.ECOS}
             solver = solver_map.get(self.solver_name, cp.OSQP)
             
+            print(f"🔧 Starting optimization with {n_assets} assets...")
+            print(f"   Solver: {self.solver_name}, Max iterations: {self.max_iter}")
+            print(f"   Constraints: {len(constraints)} total")
+            
             problem.solve(
                 solver=solver,
                 warm_start=self.warm_start_enabled,
                 max_iter=self.max_iter,
                 eps_abs=self.ftol,
                 eps_rel=self.ftol,
-                verbose=False
+                verbose=True  # Enable verbose for debugging
             )
             
+            print(f"📊 Solver status: {problem.status}")
+            print(f"   Objective value: {problem.value}")
+            
             if problem.status not in ['optimal', 'optimal_inaccurate']:
-                print(f"⚠️  Solver status: {problem.status}. Using fallback.")
+                print(f"⚠️  Solver status: {problem.status}. Using fallback to equal weights.")
+                print(f"   This indicates constraint conflicts or numerical issues.")
                 w_optimal = self.w_baseline.copy()
                 status = 'fallback'
             else:
                 w_optimal = w.value
                 if w_optimal is None:
+                    print(f"⚠️  Solver returned None. Using equal-weight fallback.")
                     w_optimal = self.w_baseline.copy()
                     status = 'fallback'
                 else:
                     status = problem.status
                     # Normalize to ensure sum = 1
-                    w_optimal = w_optimal / np.sum(w_optimal)
+                    w_sum = np.sum(w_optimal)
+                    print(f"✅ Optimization successful! Weight sum: {w_sum:.6f}")
+                    w_optimal = w_optimal / w_sum
+                    print(f"   Max weight: {np.max(w_optimal):.4f}, Min weight: {np.min(w_optimal):.4f}")
+                    print(f"   Effective N: {1.0/np.sum(w_optimal**2):.2f}")
                 
         except Exception as e:
-            print(f"❌ Solver failed: {e}. Using equal-weight fallback.")
+            print(f"❌ Solver failed with exception: {e}")
+            import traceback
+            traceback.print_exc()
+            print(f"   Using equal-weight fallback.")
             w_optimal = self.w_baseline.copy()
             status = 'error'
         
