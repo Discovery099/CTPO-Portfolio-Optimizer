@@ -132,15 +132,18 @@ backend:
 
   - task: "Portfolio Constraints"
     implemented: true
-    working: false
+    working: true
     file: "/app/ctpo-optimizer/ctpo/core/constraints.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Constraints too restrictive causing infeasible optimization. Fixed: 1) Made position_max adaptive (>= 1.5/n_assets), 2) Increased force balance relaxation factor from 100x to (n_assets * 50)x, 3) Made diversification constraint more lenient (enp_limit + 0.8), 4) Changed to long-only (position_min=0)"
+      - working: true
+        agent: "testing"
+        comment: "Constraints are working correctly after solver fix. All weight validations pass: weights sum to 1.0, all non-negative (long-only), proper diversification achieved. Effective N assets: 7.41 (10-asset), 3.85 (5-asset), 2.00 (3-asset). Constraint fixes from main agent are functioning as intended."
 
   - task: "Force Balance Validation"
     implemented: true
