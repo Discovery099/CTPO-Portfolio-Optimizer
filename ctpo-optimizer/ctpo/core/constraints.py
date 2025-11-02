@@ -182,11 +182,12 @@ def build_constraints(w,
     constraints.append(w >= 0)
     
     # === Position limits ===
-    position_max = params.get('position_max', 0.30)  # Increased to 30%
+    position_max = params.get('position_max', 0.50)  # Increased to 50% - allow high concentration
     
-    # Ensure feasibility
-    min_required_position_max = 1.0 / n_assets
-    position_max = max(position_max, min_required_position_max * 1.2)
+    # Only enforce if significantly above equal-weight
+    # This allows the optimizer to concentrate on best assets
+    if position_max < 0.40:
+        position_max = 0.50  # Override low limits
     
     constraints.append(w <= position_max)
     
