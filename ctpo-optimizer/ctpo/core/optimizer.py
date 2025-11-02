@@ -278,10 +278,11 @@ class CTPOOptimizer:
         # Define optimization variable
         w = cp.Variable(n_assets)
         
-        # Build objective
-        objective = build_objective(w, self.w_current, expected_returns, covariance, alpha_stress, self.params)
+        # Build objective WITH soft force balance
+        objective = build_objective(w, self.w_current, expected_returns, covariance, 
+                                   alpha_stress, self.params, A=A, W=W)
         
-        # Build constraints
+        # Build constraints (force balance is now soft - not in constraints)
         constraints = build_constraints(w, self.w_current, self.w_baseline, A, W, self.params)
         
         # Solve
