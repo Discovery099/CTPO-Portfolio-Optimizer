@@ -177,15 +177,18 @@ backend:
 
   - task: "API Endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "/api/optimize endpoint working but returning equal weights due to solver issues. Need to retest after constraint fixes."
+      - working: true
+        agent: "testing"
+        comment: "All API endpoints working correctly: GET /api/ (health check), GET /api/tickers/popular (returns 6 categories), POST /api/optimize (all test cases pass with optimized weights, response times <1s). Backend integration with CTPO optimizer is functioning properly."
 
 frontend:
   - task: "Dashboard Display"
