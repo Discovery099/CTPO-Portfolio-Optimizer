@@ -19,23 +19,15 @@ from .constraints import (
 )
 
 
-# Default system parameters
+# Default system parameters - PURE MEAN-VARIANCE (CDPR REMOVED)
 SYSTEM_PARAMS = {
     'n_assets': 152,
     'volatility_threshold': 0.23,
     'correlation_breakdown': 0.85,
     'risk_free_rate': 0.042,
-    'tension_regularization': 0.0075,
-    'workspace_constraint': 0.92,
-    'cable_stiffness': 310.0,
-    'force_balance_tolerance': 0.0018,
-    'force_balance_penalty': 0.001,  # NEW: Soft penalty weight
-    'diversification_gain': 0.24,
     'transaction_cost_limit': 0.005,
-    'leverage_max': 2.0,
-    'position_max': 0.20,  # INCREASED from 0.08 to 0.20 (20%)
+    'position_max': 0.30,  # Increased to 30% for concentration
     'position_min': 0.0,   # Long-only
-    'min_effective_assets': 5,  # REDUCED from 20 to 5
     'condition_number_max': 10000,
     'max_iterations': 200,
     'ftol': 1e-6,
