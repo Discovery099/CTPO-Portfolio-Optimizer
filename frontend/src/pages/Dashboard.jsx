@@ -373,8 +373,8 @@ const Dashboard = () => {
             {/* Asset Metrics */}
             <Card className="shadow-lg border-0">
               <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
-                <CardTitle>Asset Metrics</CardTitle>
-                <CardDescription>Beta, volatility, and expected returns</CardDescription>
+                <CardTitle>Portfolio Allocation Details</CardTitle>
+                <CardDescription>Weight distribution across assets</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="h-80">
@@ -385,9 +385,7 @@ const Dashboard = () => {
                       <YAxis />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="beta" fill="#3b82f6" name="Beta" />
-                      <Bar dataKey="volatility" fill="#ef4444" name="Volatility (%)" />
-                      <Bar dataKey="expected_return" fill="#10b981" name="Expected Return (%)" />
+                      <Bar dataKey="weight" fill="#3b82f6" name="Portfolio Weight (%)" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
