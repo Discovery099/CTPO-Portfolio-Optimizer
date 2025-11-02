@@ -214,17 +214,17 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-8 px-6 shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-6 md:py-8 px-4 md:px-6 shadow-lg">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-            <Activity className="w-10 h-10" />
+          <h1 className="text-2xl md:text-4xl font-bold mb-2 flex items-center gap-2 md:gap-3">
+            <Activity className="w-8 h-8 md:w-10 md:h-10" />
             CTPO Portfolio Optimizer
           </h1>
-          <p className="text-blue-100 text-lg">Cable-Driven Parallel Robot Portfolio Optimization System</p>
+          <p className="text-blue-100 text-sm md:text-lg">Cable-Driven Parallel Robot Portfolio Optimization System</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8">
         {/* Input Section */}
         <Card className="mb-8 shadow-lg border-0">
           <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
