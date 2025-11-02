@@ -227,10 +227,13 @@ class PerformanceMetrics:
             metrics['avg_concentration'] = float(np.mean(herfindahls)) if herfindahls else 0
         
         # === Stress Period Performance ===
-        if len(returns) > 20:
-            monthly_returns = returns.resample('M').apply(lambda x: np.prod(1 + x) - 1)
+        if len(returns) > 20 and isinstance(returns.index, pd.DatetimeIndex):
+            monthly_returns = returns.resample('ME').apply(lambda x: np.prod(1 + x) - 1)
             metrics['worst_month'] = float(monthly_returns.min())
             metrics['best_month'] = float(monthly_returns.max())
+        else:
+            metrics['worst_month'] = None
+            metrics['best_month'] = None
         
         return metrics
     
