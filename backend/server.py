@@ -117,9 +117,10 @@ async def optimize_portfolio(request: OptimizationRequest):
                         failed_tickers.append(ticker)
                 
                 if failed_tickers:
+                    ticker_list = ', '.join([f"[{t}]" for t in failed_tickers])
                     raise HTTPException(
                         status_code=400,
-                        detail=f"Invalid ticker(s): {', '.join(failed_tickers)} not found. Please check the ticker symbols and try again."
+                        detail=f"Ticker {ticker_list} not found. Please use valid Yahoo Finance symbols"
                     )
             raise HTTPException(
                 status_code=500,
@@ -127,10 +128,27 @@ async def optimize_portfolio(request: OptimizationRequest):
             )
         
         if returns_df.empty or len(returns_df) < 50:
-            raise HTTPException(
-                status_code=400, 
-                detail="Insufficient historical data. Portfolio optimization requires at least 50 days of price history. Please try different tickers or a longer time period."
-            )
+            # Identify which tickers have insufficient data
+            insufficient_tickers = []
+            for ticker in request.tickers:
+                try:
+                    test_df = fetcher.fetch_returns([ticker], period=request.period)
+                    if test_df.empty or len(test_df) < 50:
+                        insufficient_tickers.append(ticker)
+                except:
+                    pass
+            
+            if insufficient_tickers:
+                ticker_list = ', '.join([f"[{t}]" for t in insufficient_tickers])
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Insufficient data for {ticker_list} in selected time period"
+                )
+            else:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Insufficient historical data. Portfolio optimization requires at least 50 days of price history."
+                )
         
         returns = returns_df.values
         
