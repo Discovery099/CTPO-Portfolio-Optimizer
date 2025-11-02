@@ -720,7 +720,16 @@ const Dashboard = () => {
                 <strong className="text-gray-800">🎓 Educational Tool:</strong> CTPO demonstrates Modern Portfolio Theory concepts. It does not account for taxes, transaction costs, bid-ask spreads, or black swan events.
               </p>
               <p>
-                <strong className="text-gray-800">🔓 Open Source:</strong> This tool is provided "as-is" without warranties. Source code available on GitHub under MIT License.
+                <strong className="text-gray-800">🔓 Open Source:</strong> This tool is provided "as-is" without warranties. Source code available on{' '}
+                <a 
+                  href="https://github.com/Discovery099/CTPO-Portfolio-Optimizer" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  GitHub
+                </a>
+                {' '}under MIT License.
               </p>
             </div>
             
