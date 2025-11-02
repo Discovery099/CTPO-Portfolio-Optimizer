@@ -19,6 +19,56 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [activePreset, setActivePreset] = useState(null);  // Track selected preset
+  
+  // Preset portfolios
+  const presetPortfolios = {
+    conservative: {
+      name: 'Conservative',
+      description: 'Stable blue-chip stocks with low volatility',
+      tickers: ['JPM', 'JNJ', 'PG', 'KO', 'WMT', 'T', 'VZ', 'PFE', 'MCD', 'XOM'],
+      icon: '🛡️'
+    },
+    growthTech: {
+      name: 'Growth Tech',
+      description: 'High-growth technology companies',
+      tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'TSLA', 'NVDA', 'AMD', 'CRM', 'ADBE'],
+      icon: '🚀'
+    },
+    dividend: {
+      name: 'Dividend',
+      description: 'High dividend-paying stocks',
+      tickers: ['T', 'VZ', 'XOM', 'CVX', 'KO', 'PEP', 'JNJ', 'PG', 'MO', 'IBM'],
+      icon: '💰'
+    },
+    balanced: {
+      name: 'Balanced',
+      description: 'Mix of growth and value stocks',
+      tickers: ['AAPL', 'MSFT', 'JPM', 'JNJ', 'V', 'WMT', 'PG', 'NVDA', 'UNH', 'HD'],
+      icon: '⚖️'
+    },
+    crypto: {
+      name: 'Crypto',
+      description: 'Major cryptocurrencies (via Yahoo Finance)',
+      tickers: ['BTC-USD', 'ETH-USD', 'SOL-USD', 'ADA-USD', 'MATIC-USD', 'AVAX-USD', 'DOT-USD', 'LINK-USD'],
+      icon: '₿'
+    },
+    forex: {
+      name: 'Forex',
+      description: 'Major currency pairs',
+      tickers: ['EURUSD=X', 'GBPUSD=X', 'USDJPY=X', 'AUDUSD=X', 'USDCAD=X', 'USDCHF=X'],
+      icon: '💱'
+    }
+  };
+  
+  // Handle preset selection
+  const handlePresetClick = (presetKey) => {
+    const preset = presetPortfolios[presetKey];
+    setTickers(preset.tickers.join(','));
+    setActivePreset(presetKey);
+    setError(null);
+    setResult(null);
+  };
 
   const runOptimization = async () => {
     setLoading(true);
