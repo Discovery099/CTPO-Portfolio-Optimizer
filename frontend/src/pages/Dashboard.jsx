@@ -220,7 +220,7 @@ const Dashboard = () => {
             <Activity className="w-8 h-8 md:w-10 md:h-10" />
             CTPO Portfolio Optimizer
           </h1>
-          <p className="text-blue-100 text-sm md:text-lg">Cable-Driven Parallel Robot Portfolio Optimization System</p>
+          <p className="text-blue-100 text-sm md:text-lg">Professional Mean-Variance Portfolio Optimization</p>
         </div>
       </div>
 
