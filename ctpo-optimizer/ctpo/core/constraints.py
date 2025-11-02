@@ -3,7 +3,8 @@ Constraints module for CDPR force balance and portfolio constraints
 """
 
 import numpy as np
-from typing import List, Tuple, Optional
+import cvxpy as cp
+from typing import List, Tuple, Optional, Dict
 
 
 class CableConstraints:
