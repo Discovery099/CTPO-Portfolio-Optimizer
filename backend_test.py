@@ -504,15 +504,39 @@ class CTPOBackendTester:
         print(f"Passed: {passed_tests}")
         print(f"Failed: {total_tests - passed_tests}")
         
-        # Critical test results
+        # Error handling test results
+        error_tests_passed = all([error_test_1, error_test_2, error_test_3, error_test_4, error_test_5, error_test_6])
+        
+        # Critical optimization test results
         critical_tests_passed = test_10_passed and test_5_passed and test_3_passed
         
+        print("\n" + "=" * 60)
+        print("🔍 ERROR HANDLING RESULTS")
+        print("=" * 60)
+        
+        if error_tests_passed:
+            print("✅ ALL ERROR HANDLING TESTS PASSED")
+            print("   - Invalid tickers properly identified")
+            print("   - Single-stock portfolios rejected with clear message")
+            print("   - Empty portfolios handled correctly")
+            print("   - Mixed valid/invalid tickers identified")
+            print("   - Ticker format validation working")
+            print("   - Valid portfolios still optimize correctly")
+        else:
+            print("❌ SOME ERROR HANDLING TESTS FAILED")
+            print("   - Check error message formatting")
+            print("   - Verify validation logic")
+        
+        print("\n" + "=" * 60)
+        print("⚙️  OPTIMIZATION RESULTS")
+        print("=" * 60)
+        
         if critical_tests_passed:
-            print("\n✅ CRITICAL TESTS PASSED - Constraint fixes are working!")
+            print("✅ OPTIMIZATION TESTS PASSED - Constraint fixes are working!")
             print("   - Optimization is no longer falling back to equal weights")
             print("   - Solver is finding optimal solutions")
         else:
-            print("\n❌ CRITICAL TESTS FAILED - Constraint issues persist")
+            print("❌ OPTIMIZATION TESTS FAILED - Constraint issues persist")
             print("   - Check solver logs for 'fallback' status")
             print("   - Verify constraint relaxation is sufficient")
         
@@ -523,7 +547,7 @@ class CTPOBackendTester:
             if result["details"]:
                 print(f"   {result['details']}")
         
-        return critical_tests_passed
+        return error_tests_passed and critical_tests_passed
 
 if __name__ == "__main__":
     tester = CTPOBackendTester()
