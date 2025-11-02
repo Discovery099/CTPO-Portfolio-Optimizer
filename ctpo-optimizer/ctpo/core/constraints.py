@@ -274,7 +274,8 @@ class CDPRValidator:
         report['force_residual'] = fb_residual
         
         if not fb_satisfied:
-            report['violations'].append(f\"Force balance violated: residual={fb_residual:.6f}\")\n        
+            report['violations'].append(f"Force balance violated: residual={fb_residual:.6f}")
+        
         # Check workspace constraint
         if weights_baseline is not None:
             ws_satisfied, ws_deviation = compute_workspace_constraint(
@@ -284,15 +285,19 @@ class CDPRValidator:
             report['workspace_deviation'] = ws_deviation
             
             if not ws_satisfied:
-                report['violations'].append(f\"Workspace constraint violated: deviation={ws_deviation:.6f}\")\n        
+                report['violations'].append(f"Workspace constraint violated: deviation={ws_deviation:.6f}")
+        
         # Check diversification
         enp = compute_effective_n_assets(weights)
         report['effective_n_assets'] = enp
         report['diversification_satisfied'] = enp >= self.min_effective_assets
         
         if not report['diversification_satisfied']:
-            report['violations'].append(f\"Diversification insufficient: ENP={enp:.2f} < {self.min_effective_assets}\")\n        
+            report['violations'].append(f"Diversification insufficient: ENP={enp:.2f} < {self.min_effective_assets}")
+        
         # Overall validity
-        valid = (report['force_balance_satisfied'] and \n                report['workspace_satisfied'] and \n                report['diversification_satisfied'])
+        valid = (report['force_balance_satisfied'] and 
+                report['workspace_satisfied'] and 
+                report['diversification_satisfied'])
         
         return valid, report
