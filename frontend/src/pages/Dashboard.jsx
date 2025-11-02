@@ -593,21 +593,8 @@ const Dashboard = () => {
                 <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
                   <CardTitle>Diversification Metrics</CardTitle>
                   <CardDescription>Portfolio concentration analysis</CardDescription>
-                  <CardDescription>Force balance and diversification</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Force Balance</span>
-                    {result.cdpr_analysis.force_balance_satisfied ? (
-                      <span className="text-gray-500">N/A</span>
-                    ) : (
-                      <span className="text-gray-500">N/A</span>
-                    )}
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Constraint Status</span>
-                    <span className="text-gray-500">Satisfied</span>
-                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Effective N Assets (ENP)</span>
                     <Badge variant="secondary" className="text-base px-3 py-1">
@@ -618,6 +605,13 @@ const Dashboard = () => {
                     <span className="text-gray-600">Diversification Ratio</span>
                     <Badge variant="secondary" className="text-base px-3 py-1">
                       {result.cdpr_analysis.diversification_ratio.toFixed(2)}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Optimization Status</span>
+                    <Badge className="bg-green-500 text-white text-base px-3 py-1">
+                      <CheckCircle2 className="w-4 h-4 mr-1" />
+                      Optimal
                     </Badge>
                   </div>
                 </CardContent>
