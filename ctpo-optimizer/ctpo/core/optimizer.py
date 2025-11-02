@@ -38,7 +38,7 @@ SYSTEM_PARAMS = {
     'condition_number_max': 10000,
     'max_iterations': 200,
     'ftol': 1e-6,
-    'solver': 'SCS',
+    'solver': 'CLARABEL',
     'warm_start': True
 }
 
