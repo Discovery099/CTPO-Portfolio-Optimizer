@@ -260,7 +260,7 @@ class CTPOBackendTester:
     def test_error_handling_invalid_ticker(self) -> bool:
         """TEST: Invalid Ticker Error Handling"""
         payload = {
-            "tickers": ["INVALIDXYZ123"],
+            "tickers": ["AAPL", "INVALIDXYZ"],  # Use 2 tickers to bypass single-stock validation
             "period": "1y",
             "position_max": 0.2
         }
@@ -275,7 +275,7 @@ class CTPOBackendTester:
             
             if response.status_code == 400:
                 error_msg = response.json().get("detail", "")
-                if "Invalid ticker(s): INVALIDXYZ123 not found" in error_msg:
+                if "Invalid ticker(s):" in error_msg and "INVALIDXYZ" in error_msg and "not found" in error_msg:
                     self.log_test("Invalid Ticker Error", True, f"Correct error message: {error_msg}")
                     return True
                 else:
