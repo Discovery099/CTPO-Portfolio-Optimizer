@@ -60,7 +60,7 @@
 1. **Sign up/Login** to https://app.netlify.com
 2. Click "Add new site" → "Import an existing project"
 3. Choose "GitHub" and authorize Netlify
-4. Select your `ctpo-portfolio-optimizer` repository
+4. Select your `CTPO-Portfolio-Optimizer` repository
 5. Configure build settings:
    - **Base directory**: `frontend`
    - **Build command**: `npm run build`
