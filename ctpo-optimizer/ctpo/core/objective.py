@@ -117,15 +117,15 @@ def build_objective(w: cp.Variable,
     """
     gamma = params.get('tension_regularization', 0.0075)
     lambda_tc = params.get('transaction_cost_limit', 0.005)
-    lambda_return = 5.0  # INCREASED from 1.0 to 5.0 - stronger return focus
+    lambda_return = 10.0  # INCREASED from 5.0 to 10.0 - even stronger return focus
     mu_d = params.get('diversification_gain', 0.24)
     lambda_fb = params.get('force_balance_penalty', 0.001)  # SOFT penalty weight
     
     n = len(mu)
     w0 = np.ones(n) / n  # Equal-weight baseline
     
-    # Risk term (always active)
-    risk_term = 0.5 * cp.quad_form(w, Sigma)
+    # Risk term (REDUCED weight for less risk aversion)
+    risk_term = 0.25 * cp.quad_form(w, Sigma)  # REDUCED from 0.5 to 0.25
     
     # Return term (maximize, so negative in minimization)
     return_term = -lambda_return * (mu @ w)
