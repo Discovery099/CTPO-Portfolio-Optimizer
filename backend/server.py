@@ -81,13 +81,13 @@ async def optimize_portfolio(request: OptimizationRequest):
         if not request.tickers or len(request.tickers) == 0:
             raise HTTPException(
                 status_code=400, 
-                detail="No tickers provided. Please add at least 2 assets to your portfolio."
+                detail="No tickers provided. Need at least 2 assets for portfolio optimization."
             )
         
         if len(request.tickers) == 1:
             raise HTTPException(
                 status_code=400, 
-                detail="Portfolio optimization requires at least 2 assets. Please add more tickers to your portfolio."
+                detail="Need at least 2 assets for portfolio optimization"
             )
         
         # Validate ticker format (basic check)
