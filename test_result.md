@@ -251,7 +251,7 @@ frontend:
     working: true
     file: "/app/frontend/src/pages/Dashboard.jsx"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: true
@@ -260,6 +260,37 @@ frontend:
       - working: true
         agent: "main"
         comment: "VERIFIED: Dashboard correctly displaying optimized portfolio allocations. Weights now vary (15%, 10%, 5%, 0%) instead of all equal 10%. Performance metrics updated correctly (Sharpe: 1.30, Annual Return: 45.8%, Max DD: 28.3%). Force Balance shows 'Violated' as expected with relaxed constraints."
+      - working: true
+        agent: "main"
+        comment: |
+          ENHANCED INPUT VALIDATION & MOBILE RESPONSIVENESS IMPLEMENTED:
+          
+          1. ✅ Input Validation:
+             - Real-time validation as user types
+             - Red border on input when <2 tickers entered
+             - Helper text: "Enter 2+ tickers separated by commas (e.g., AAPL,MSFT,GOOGL)"
+             - Validation error messages: "Need at least 2 assets for portfolio optimization"
+             - Button disabled when validation fails
+          
+          2. ✅ Loading States:
+             - Spinner shows when "Run CTPO Optimization" clicked
+             - Button disabled during optimization
+             - Button text changes to "Optimizing..."
+             - Prevents multiple submissions
+          
+          3. ✅ Mobile Responsiveness:
+             - Tested on mobile (375px), tablet (768px), desktop (1920px)
+             - All buttons finger-sized (min-height: 48px on mobile)
+             - Responsive grid layouts (2 cols mobile, 3 tablet, 6 desktop for presets)
+             - Charts responsive (h-64 mobile, h-80 desktop)
+             - Header text scales appropriately
+             - Touch-friendly spacing
+          
+          4. ✅ Cosmetic Fixes:
+             - Consistent spacing throughout
+             - No console errors (only harmless WebSocket hot-reload warning)
+             - Charts use percentage-based outerRadius for better scaling
+             - Clean, professional appearance
 
   - task: "Portfolio Visualization"
     implemented: true
