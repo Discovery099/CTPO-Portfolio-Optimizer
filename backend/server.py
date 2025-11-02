@@ -134,10 +134,18 @@ async def optimize_portfolio(request: OptimizationRequest):
                 "diversification_ratio": float(enp)
             },
             cdpr_analysis={
-                "force_balance_satisfied": bool(fb_satisfied),
+                "force_balance_satisfied": bool(int(fb_satisfied)),  # Convert numpy.bool_ to Python bool
                 "force_residual": float(fb_residual),
                 "effective_n_assets": float(enp),
-                "validation_report": validation_report
+                "validation_report": {
+                    "force_balance_satisfied": bool(int(validation_report['force_balance_satisfied'])),
+                    "workspace_satisfied": bool(int(validation_report['workspace_satisfied'])),
+                    "diversification_satisfied": bool(int(validation_report['diversification_satisfied'])),
+                    "force_residual": float(validation_report['force_residual']),
+                    "workspace_deviation": float(validation_report['workspace_deviation']),
+                    "effective_n_assets": float(validation_report['effective_n_assets']),
+                    "violations": validation_report['violations']
+                }
             },
             performance={
                 "sharpe_ratio": float(sharpe),
