@@ -1,0 +1,53 @@
+# CTPO Optimizer Default Parameters
+
+# Optimization Settings
+optimization:
+  convergence_tolerance: 1e-6
+  max_iterations: 1000
+  solver: 'ECOS'  # CVXPY solver
+  verbose: false
+
+# Portfolio Constraints
+constraints:
+  min_weight: 0.01      # 1% minimum position
+  max_weight: 0.25      # 25% maximum position
+  min_assets: 20        # Minimum diversification
+  max_leverage: 1.0     # No leverage
+  
+# CDPR Force Balance Parameters
+cdpr:
+  tension_min: 0.01     # Minimum cable tension (min weight)
+  tension_max: 0.25     # Maximum cable tension (max weight)
+  force_balance_tol: 1e-4
+  wrench_feasibility: true
+  
+# Risk Parameters
+risk:
+  var_confidence: 0.95  # 95% VaR
+  cvar_confidence: 0.95 # 95% CVaR
+  lookback_period: 252  # Trading days (1 year)
+  stress_multiplier: 1.5 # Correlation stress factor
+  
+# GARCH Model
+garch:
+  p: 1  # GARCH lag order
+  q: 1  # ARCH lag order
+  distribution: 'normal'
+  
+# Transaction Costs
+transaction_costs:
+  fixed_cost: 1.0       # Fixed cost per trade
+  variable_cost: 0.001  # 10 bps per trade
+  annual_target: 0.005  # 0.5% annual limit
+  
+# Rebalancing
+rebalancing:
+  frequency: 'daily'    # daily, weekly, monthly
+  max_trades_per_hour: 10
+  min_weight_change: 0.02  # 2% change threshold
+  
+# Data Settings
+data:
+  source: 'yahoo'
+  cache_enabled: true
+  cache_dir: '.cache'

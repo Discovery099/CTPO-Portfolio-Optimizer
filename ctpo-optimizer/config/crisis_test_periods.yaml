@@ -1,0 +1,41 @@
+# Historical Crisis Periods for Testing
+
+crisis_periods:
+  
+  financial_crisis_2008:
+    name: "Global Financial Crisis"
+    start_date: "2008-01-01"
+    end_date: "2009-12-31"
+    description: "Lehman collapse, credit freeze"
+    expected_challenges:
+      - High correlation breakdown
+      - Extreme volatility
+      - Flight to quality
+    
+  covid_crash_2020:
+    name: "COVID-19 Market Crash"
+    start_date: "2020-01-01"
+    end_date: "2020-12-31"
+    description: "Pandemic-driven market collapse"
+    expected_challenges:
+      - Sudden regime shift
+      - Unprecedented volatility
+      - Central bank intervention
+  
+  dot_com_bubble_2000:
+    name: "Dot-com Bubble Burst"
+    start_date: "2000-01-01"
+    end_date: "2002-12-31"
+    description: "Tech bubble collapse"
+    expected_challenges:
+      - Sector concentration risk
+      - Extended drawdown
+      - Value vs growth divergence
+
+baseline_periods:
+  
+  calm_period:
+    name: "Low Volatility Period"
+    start_date: "2017-01-01"
+    end_date: "2019-12-31"
+    description: "Pre-COVID normal market"
