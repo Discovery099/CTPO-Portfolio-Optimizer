@@ -260,7 +260,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Enhanced Error Messages and Validation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -303,3 +304,23 @@ agent_communication:
       
       The constraint fixes from main agent are working as intended. The optimization is now producing 
       optimal portfolio allocations instead of falling back to equal weights.
+  - agent: "main"
+    message: |
+      📋 ENHANCED ERROR HANDLING IMPLEMENTATION
+      
+      Implemented comprehensive input validation and user-friendly error messages in /api/optimize endpoint.
+      
+      🔍 Test Cases to Validate:
+      1. Invalid Ticker Test: Submit ticker "INVALIDXYZ123" - should return "Invalid ticker(s): INVALIDXYZ123 not found"
+      2. Single Stock Test: Submit only ["AAPL"] - should return "Portfolio optimization requires at least 2 assets"
+      3. Empty Portfolio Test: Submit empty tickers [] - should return "No tickers provided"
+      4. Mixed Valid/Invalid Test: Submit ["AAPL", "BADTICKER"] - should identify "BADTICKER" as invalid
+      5. Insufficient Data Test: Submit very new/low-volume tickers - should return clear message about 50 days requirement
+      
+      🎯 Expected Improvements:
+      - No more technical "array must be at least 2-d" errors
+      - No more generic "Insufficient data" errors
+      - Clear identification of which specific tickers failed
+      - User-friendly guidance on how to fix issues
+      
+      Ready for backend testing agent to validate all error scenarios.
