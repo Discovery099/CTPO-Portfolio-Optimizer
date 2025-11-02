@@ -150,23 +150,21 @@ def build_constraints(w,
                      W: np.ndarray,
                      params: Dict) -> List:
     """
-    Build all CVXPY constraints for CTPO optimization.
+    Build CVXPY constraints - PURE MEAN-VARIANCE (ALL CDPR REMOVED)
     
-    UPDATED: Force balance is now SOFT (in objective), not hard constraint
-    UPDATED: Relaxed diversification constraints
-    UPDATED: Increased position limits for better optimization
+    Only essential portfolio constraints remain:
+    1. Capital conservation: sum(w) = 1
+    2. Long-only: w >= 0
+    3. Position limits: w <= position_max
     
-    Constraint groups:
-    1. Portfolio structure (2)
-    2. Position limits (2×N box constraints)
-    3. Diversification (1) - RELAXED
+    ALL CDPR force balance and diversification constraints REMOVED.
     
     Args:
         w: Portfolio weight variable (CVXPY)
-        w_prev: Previous weights
-        w_baseline: Baseline weights
-        A: Structure matrix (3 x N) - NOT USED as hard constraint
-        W: Wrench vector (3,) - NOT USED as hard constraint
+        w_prev: Previous weights - NOT USED
+        w_baseline: Baseline weights - NOT USED
+        A: Structure matrix - NOT USED (CDPR removed)
+        W: Wrench vector - NOT USED (CDPR removed)
         params: Parameter dictionary
         
     Returns:
@@ -177,34 +175,22 @@ def build_constraints(w,
     constraints = []
     n_assets = len(w_baseline)
     
-    # === GROUP 1: Portfolio Structure ===
-    # 1. Capital conservation: Σw_i = 1 (long-only portfolio)
+    # === Capital conservation: Σw_i = 1 ===
     constraints.append(cp.sum(w) == 1)
     
-    # 2. Long-only constraint (no shorting)
+    # === Long-only: no shorting ===
     constraints.append(w >= 0)
     
-    # === GROUP 2: Position Limits (Box Constraints) ===
-    # UPDATED: Increase position_max to allow concentration
-    position_min = 0.0  # Long-only
-    position_max = params.get('position_max', 0.20)  # INCREASED from 0.08 to 0.20 (20%)
+    # === Position limits ===
+    position_max = params.get('position_max', 0.30)  # Increased to 30%
     
-    # Ensure position_max is feasible
+    # Ensure feasibility
     min_required_position_max = 1.0 / n_assets
     position_max = max(position_max, min_required_position_max * 1.2)
     
-    # Apply upper bound only
     constraints.append(w <= position_max)
     
-    # === GROUP 3: Diversification (REMOVED) ===
-    # Let the objective function handle diversification through penalties
-    # Hard diversification constraints force equal weights
-    # Commented out to allow optimizer freedom
-    #
-    # min_effective_assets = params.get('min_effective_assets', 5)
-    # min_effective_assets = min(min_effective_assets, max(3, n_assets // 2))
-    # enp_limit = 1.0 / min_effective_assets
-    # constraints.append(cp.sum_squares(w) <= enp_limit + 0.95)
+    # ALL OTHER CONSTRAINTS REMOVED (diversification, force balance, etc.)
     
     return constraints
 
