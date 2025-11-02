@@ -547,7 +547,7 @@ class CTPOBackendTester:
         error_test_2 = self.test_error_handling_single_stock()
         error_test_3 = self.test_error_handling_empty_portfolio()
         error_test_4 = self.test_error_handling_mixed_tickers()
-        error_test_5 = self.test_error_handling_ticker_format()
+        error_test_5 = self.test_insufficient_data_scenario()
         error_test_6 = self.test_valid_optimization_baseline()
         
         # Test 4: Original optimization tests
