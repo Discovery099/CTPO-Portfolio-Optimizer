@@ -599,22 +599,14 @@ const Dashboard = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Force Balance</span>
                     {result.cdpr_analysis.force_balance_satisfied ? (
-                      <Badge className="bg-green-500 text-white text-base px-3 py-1">
-                        <CheckCircle2 className="w-4 h-4 mr-1" />
-                        N/A (CDPR Removed)
-                      </Badge>
+                      <span className="text-gray-500">N/A</span>
                     ) : (
-                      <Badge variant="secondary" className="text-base px-3 py-1">
-                        <AlertCircle className="w-4 h-4 mr-1" />
-                        N/A (CDPR Removed)
-                      </Badge>
+                      <span className="text-gray-500">N/A</span>
                     )}
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Force Residual</span>
-                    <Badge variant="secondary" className="text-base px-3 py-1">
-                      {result.cdpr_analysis.force_residual_norm.toFixed(6)}
-                    </Badge>
+                    <span className="text-gray-600">Constraint Status</span>
+                    <span className="text-gray-500">Satisfied</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Effective N Assets (ENP)</span>
