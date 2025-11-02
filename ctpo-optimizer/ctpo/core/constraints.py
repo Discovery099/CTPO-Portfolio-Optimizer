@@ -196,18 +196,15 @@ def build_constraints(w,
     # Apply upper bound only
     constraints.append(w <= position_max)
     
-    # === GROUP 3: Diversification (RELAXED) ===
-    # UPDATED: Lower minimum effective assets to allow concentration
-    min_effective_assets = params.get('min_effective_assets', 5)  # REDUCED from 20 to 5
-    min_effective_assets = min(min_effective_assets, max(3, n_assets // 2))  # At least 3, at most half
-    
-    enp_limit = 1.0 / min_effective_assets
-    # Very relaxed slack
-    constraints.append(cp.sum_squares(w) <= enp_limit + 0.95)  # INCREASED slack from 0.8 to 0.95
-    
-    # === FORCE BALANCE: NOW SOFT CONSTRAINT (in objective) ===
-    # Removed hard force balance constraints - they're too restrictive
-    # Force balance residual is now penalized in the objective function
+    # === GROUP 3: Diversification (REMOVED) ===
+    # Let the objective function handle diversification through penalties
+    # Hard diversification constraints force equal weights
+    # Commented out to allow optimizer freedom
+    #
+    # min_effective_assets = params.get('min_effective_assets', 5)
+    # min_effective_assets = min(min_effective_assets, max(3, n_assets // 2))
+    # enp_limit = 1.0 / min_effective_assets
+    # constraints.append(cp.sum_squares(w) <= enp_limit + 0.95)
     
     return constraints
 
