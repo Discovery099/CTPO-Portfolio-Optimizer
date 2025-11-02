@@ -21,13 +21,7 @@ from ctpo.metrics.performance import PerformanceMetrics
 from ctpo.risk.capm import CAPMModel
 from ctpo.risk.correlation import StressCorrelation
 from ctpo.risk.garch import estimate_garch_volatilities
-from ctpo.core.constraints import (
-    construct_structure_matrix,
-    construct_wrench_vector,
-    force_balance_residual,
-    compute_effective_n_assets,
-    CDPRValidator
-)
+# CDPR constraints removed
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
