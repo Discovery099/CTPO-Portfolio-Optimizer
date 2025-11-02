@@ -59,7 +59,26 @@ class GARCHModel:
         try:
             # Fit GARCH(p,q) model
             with warnings.catch_warnings():
-                warnings.simplefilter(\"ignore\")\n                model = arch_model(\n                    returns_scaled, \n                    vol='Garch', \n                    p=self.p, \n                    q=self.q,\n                    dist=self.distribution,\n                    rescale=False\n                )\n                self.fitted_model = model.fit(disp='off', show_warning=False)\n                \n                # Extract conditional volatility (unscale)\n                self.conditional_volatility = self.fitted_model.conditional_volatility.values / scale\n                \n        except Exception as e:\n            # Fallback to historical volatility if GARCH fails\n            warnings.warn(f\"GARCH fitting failed: {e}. Using historical volatility.\")\n            self.conditional_volatility = np.ones(len(returns)) * np.std(returns)\n        \n        return self
+                warnings.simplefilter("ignore")
+                model = arch_model(
+                    returns_scaled, 
+                    vol='Garch', 
+                    p=self.p, 
+                    q=self.q,
+                    dist=self.distribution,
+                    rescale=False
+                )
+                self.fitted_model = model.fit(disp='off', show_warning=False)
+                
+                # Extract conditional volatility (unscale)
+                self.conditional_volatility = self.fitted_model.conditional_volatility.values / scale
+                
+        except Exception as e:
+            # Fallback to historical volatility if GARCH fails
+            warnings.warn(f"GARCH fitting failed: {e}. Using historical volatility.")
+            self.conditional_volatility = np.ones(len(returns)) * np.std(returns)
+        
+        return self
     
     def forecast_volatility(self, horizon: int = 1) -> float:
         """
