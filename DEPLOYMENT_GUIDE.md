@@ -46,14 +46,9 @@
    git commit -m "Initial commit - CTPO Portfolio Optimizer"
    ```
 
-2. **Create GitHub Repository**:
-   - Go to https://github.com/new
-   - Create a new repository (e.g., `ctpo-portfolio-optimizer`)
-   - Don't initialize with README (you already have files)
-
-3. **Push to GitHub**:
+2. **Push to GitHub** (repository already exists):
    ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/ctpo-portfolio-optimizer.git
+   git remote add origin https://github.com/Discovery099/CTPO-Portfolio-Optimizer.git
    git branch -M main
    git push -u origin main
    ```
