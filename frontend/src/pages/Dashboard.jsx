@@ -20,6 +20,7 @@ const Dashboard = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [activePreset, setActivePreset] = useState(null);  // Track selected preset
+  const [validationError, setValidationError] = useState(null);  // NEW: Validation error
   
   // Preset portfolios
   const presetPortfolios = {
