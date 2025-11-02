@@ -49,13 +49,13 @@ const Dashboard = () => {
     .map(([ticker, weight]) => ({ name: ticker, value: (weight * 100) }))
     .sort((a, b) => b.value - a.value) : [];
 
-  const metricsData = result ? Object.entries(result.metrics.betas)
-    .map(([ticker, beta]) => ({
+  // Simplified metrics data (no betas/volatilities in new API)
+  const metricsData = result ? Object.entries(result.weights)
+    .map(([ticker, weight]) => ({
       ticker,
-      beta: beta,
-      volatility: result.metrics.volatilities[ticker] * 100,
-      expected_return: result.metrics.expected_returns[ticker] * 100
-    })) : [];
+      weight: weight * 100
+    }))
+    .sort((a, b) => b.weight - a.weight) : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
