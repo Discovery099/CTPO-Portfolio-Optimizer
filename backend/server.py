@@ -158,41 +158,6 @@ async def optimize_portfolio(request: OptimizationRequest):
         )
         
         return result
-                "betas": {ticker: float(b) for ticker, b in zip(request.tickers, betas)},
-                "volatilities": {ticker: float(v) for ticker, v in zip(request.tickers, volatilities)},
-                "market_volatility": float(sigma_market),
-                "avg_correlation": float(avg_correlation),
-                "stress_level": float(alpha_stress)
-            },
-            risk_analysis={
-                "covariance_condition_number": float(np.linalg.cond(Sigma)),
-                "portfolio_volatility": float(np.sqrt(weights.T @ Sigma @ weights)),
-                "diversification_ratio": float(enp)
-            },
-            cdpr_analysis={
-                "force_balance_satisfied": bool(int(fb_satisfied)),  # Convert numpy.bool_ to Python bool
-                "force_residual": float(fb_residual),
-                "effective_n_assets": float(enp),
-                "validation_report": {
-                    "force_balance_satisfied": bool(int(validation_report['force_balance_satisfied'])),
-                    "workspace_satisfied": bool(int(validation_report['workspace_satisfied'])),
-                    "diversification_satisfied": bool(int(validation_report['diversification_satisfied'])),
-                    "force_residual": float(validation_report['force_residual']),
-                    "workspace_deviation": float(validation_report['workspace_deviation']),
-                    "effective_n_assets": float(validation_report['effective_n_assets']),
-                    "violations": validation_report['violations']
-                }
-            },
-            performance={
-                "sharpe_ratio": float(sharpe),
-                "sortino_ratio": float(sortino),
-                "max_drawdown": float(max_dd),
-                "annual_return": float(annual_return),
-                "total_return": float(np.prod(1 + portfolio_returns) - 1)
-            }
-        )
-        
-        return result
         
     except Exception as e:
         logging.error(f"Optimization error: {str(e)}")
