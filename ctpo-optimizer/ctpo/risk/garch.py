@@ -108,7 +108,8 @@ class GARCHModel:
             return float(volatility)
             
         except Exception as e:
-            warnings.warn(f\"GARCH forecast failed: {e}\")\n            return float(self.conditional_volatility[-1]) if self.conditional_volatility is not None else self.min_volatility
+            warnings.warn(f"GARCH forecast failed: {e}")
+            return float(self.conditional_volatility[-1]) if self.conditional_volatility is not None else self.min_volatility
     
     def get_last_volatility(self) -> float:
         """
