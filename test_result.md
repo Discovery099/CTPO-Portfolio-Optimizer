@@ -130,6 +130,35 @@ backend:
         agent: "testing"
         comment: "CRITICAL FIX APPLIED: Root cause was CVXPY solver incompatibility. OSQP (QP solver) cannot handle conic constraints in the problem. Fixed by changing default solver from 'OSQP' to 'CLARABEL' and adding solver-specific parameter handling. All optimization tests now pass: 10-asset (weights std: 0.1871, Sharpe: 1.301), 5-asset (weights std: 0.2449, Sharpe: 1.395), 3-asset (weights std: 0.4082, Sharpe: 3.689). Solver status: optimal, no more fallback to equal weights."
 
+  - task: "Enhanced Error Messages and Validation"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          Implemented comprehensive error handling and user-friendly error messages:
+          1. Invalid ticker validation: Now shows "Invalid ticker(s): XYZ not found" instead of generic errors
+          2. Single stock validation: Shows "Portfolio optimization requires at least 2 assets" for 1-ticker portfolios
+          3. Empty portfolio validation: Checks for empty ticker lists
+          4. Ticker format validation: Basic format checks before API calls
+          5. Data fetch error handling: Identifies specific failed tickers
+          6. Insufficient data handling: Clear message about minimum 50 days requirement
+          7. Optimization error handling: Specific messages for singular matrix, infeasible constraints
+          8. Dimension error handling: Catches and converts technical "2-d array" errors to user-friendly messages
+          
+          Changes made:
+          - Added input validation at start of /api/optimize endpoint
+          - Enhanced exception handling with try-catch blocks around data fetch and optimization
+          - Differentiate between HTTPException (user-friendly) and general exceptions
+          - Test individual tickers when bulk fetch fails to identify problematic ones
+          
+          Ready for testing with various edge cases.
+
   - task: "Portfolio Constraints"
     implemented: true
     working: true
