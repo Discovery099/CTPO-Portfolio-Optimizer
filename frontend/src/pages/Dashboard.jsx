@@ -253,7 +253,14 @@ const Dashboard = () => {
                 <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-lg shadow-sm">
                   <Github className="w-6 h-6 text-gray-700" />
                   <span className="text-xs font-medium text-gray-700">Open Source</span>
-                  <span className="text-xs text-gray-500">MIT License</span>
+                  <a 
+                    href="https://github.com/Discovery099/CTPO-Portfolio-Optimizer" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    MIT License
+                  </a>
                 </div>
                 <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-lg shadow-sm">
                   <Shield className="w-6 h-6 text-blue-600" />
