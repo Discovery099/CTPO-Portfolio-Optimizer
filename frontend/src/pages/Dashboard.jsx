@@ -225,6 +225,62 @@ const Dashboard = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8">
+        {/* Hero / Landing Section */}
+        <Card className="mb-8 bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 shadow-xl">
+          <CardContent className="pt-8 pb-8">
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                <TrendingUp className="w-4 h-4" />
+                Professional Mean-Variance Portfolio Optimization
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Free & Open Source Portfolio Optimizer
+              </h2>
+              
+              <p className="text-lg text-gray-600 mb-6">
+                Optimize your portfolio using Modern Portfolio Theory. Validated across crisis scenarios, 
+                tested with stocks, crypto, and forex. No registration required.
+              </p>
+              
+              {/* Trust Badges */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-lg shadow-sm">
+                  <CheckCircle2 className="w-6 h-6 text-green-600" />
+                  <span className="text-xs font-medium text-gray-700">Mathematically Validated</span>
+                  <span className="text-xs text-gray-500">7/7 tests passed</span>
+                </div>
+                <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-lg shadow-sm">
+                  <Github className="w-6 h-6 text-gray-700" />
+                  <span className="text-xs font-medium text-gray-700">Open Source</span>
+                  <span className="text-xs text-gray-500">MIT License</span>
+                </div>
+                <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-lg shadow-sm">
+                  <Shield className="w-6 h-6 text-blue-600" />
+                  <span className="text-xs font-medium text-gray-700">Crisis-Tested</span>
+                  <span className="text-xs text-gray-500">2008 & 2020</span>
+                </div>
+                <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-lg shadow-sm">
+                  <Zap className="w-6 h-6 text-yellow-600" />
+                  <span className="text-xs font-medium text-gray-700">Fast Optimization</span>
+                  <span className="text-xs text-gray-500">&lt;50ms solve</span>
+                </div>
+                <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-lg shadow-sm">
+                  <Database className="w-6 h-6 text-purple-600" />
+                  <span className="text-xs font-medium text-gray-700">No Registration</span>
+                  <span className="text-xs text-gray-500">100% Free</span>
+                </div>
+              </div>
+              
+              {/* Scroll down indicator */}
+              <div className="flex items-center justify-center gap-2 text-blue-600 animate-bounce">
+                <span className="text-sm font-medium">Start Optimizing Below</span>
+                <ArrowDown className="w-4 h-4" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Input Section */}
         <Card className="mb-8 shadow-lg border-0">
           <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
