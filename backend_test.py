@@ -540,7 +540,7 @@ class CTPOBackendTester:
         
         # Test 3: Error Handling Tests (Priority Order)
         print("\n" + "=" * 60)
-        print("🔍 ERROR HANDLING VALIDATION TESTS")
+        print("🔍 REFINED ERROR MESSAGE FORMAT TESTS")
         print("=" * 60)
         
         error_test_1 = self.test_error_handling_invalid_ticker()
