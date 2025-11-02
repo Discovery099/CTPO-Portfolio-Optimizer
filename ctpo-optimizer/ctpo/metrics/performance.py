@@ -275,7 +275,7 @@ class PerformanceMetrics:
             print(f"  Avg Effective Assets:   {metrics['avg_effective_assets']:>12.1f}")
             print(f"  Avg Concentration:      {metrics['avg_concentration']:>12.3f}")
         
-        if 'worst_month' in metrics:
+        if 'worst_month' in metrics and metrics['worst_month'] is not None:
             print("\nStress Period Performance:")
             print(f"  Worst Month:            {metrics['worst_month']:>12.2%}")
             print(f"  Best Month:             {metrics['best_month']:>12.2%}")
