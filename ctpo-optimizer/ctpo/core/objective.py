@@ -141,13 +141,13 @@ def build_objective(w: cp.Variable,
     Delta_w = w - w_prev
     tc_penalty = lambda_tc * cp.norm(Delta_w, 1)
     
-    # SOFT force balance penalty (NEW)
-    # Instead of hard constraint, add penalty for violating force balance
-    if A is not None and W is not None:
+    # SOFT force balance penalty (DISABLED for maximum performance)
+    # Force balance removed entirely to eliminate CDPR constraint interference
+    if A is not None and W is not None and lambda_fb > 0:
         force_balance_residual = A @ w - W
         fb_penalty = lambda_fb * cp.sum_squares(force_balance_residual)
     else:
-        fb_penalty = 0
+        fb_penalty = 0  # DISABLED
     
     # Combined objective
     objective = risk_term + return_term + div_penalty + tc_penalty + fb_penalty
