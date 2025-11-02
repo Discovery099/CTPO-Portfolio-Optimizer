@@ -10,7 +10,7 @@ import time
 from typing import Dict, Any, List
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://cable-optimizer.preview.emergentagent.com"
+BACKEND_URL = "https://invest-optim.preview.emergentagent.com"
 
 class CTPOBackendTester:
     def __init__(self):
