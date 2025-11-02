@@ -205,6 +205,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "UI correctly displays optimization results, properly shows Force Balance violation status"
+      - working: true
+        agent: "main"
+        comment: "VERIFIED: Dashboard correctly displaying optimized portfolio allocations. Weights now vary (15%, 10%, 5%, 0%) instead of all equal 10%. Performance metrics updated correctly (Sharpe: 1.30, Annual Return: 45.8%, Max DD: 28.3%). Force Balance shows 'Violated' as expected with relaxed constraints."
 
   - task: "Portfolio Visualization"
     implemented: true
@@ -217,6 +220,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "Charts and tables display correctly. Showing equal weights is correct behavior when solver falls back."
+      - working: true
+        agent: "main"
+        comment: "VERIFIED: Pie chart and bar chart correctly visualizing optimized weights. Asset Metrics chart displaying properly. All visualizations working as expected with real optimized data."
 
 metadata:
   created_by: "main_agent"
