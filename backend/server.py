@@ -44,6 +44,13 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # CTPO Models
+class OptimizationRequest(BaseModel):
+    tickers: List[str] = Field(default=["AAPL", "GOOGL", "MSFT", "AMZN", "META", "TSLA", "NVDA", "JPM", "V", "WMT"])
+    period: str = Field(default="1y")
+    target_return: float = Field(default=0.08)
+    max_risk: float = Field(default=0.15)
+    min_effective_assets: int = Field(default=10)
+
 class BacktestRequest(BaseModel):
     tickers: List[str] = Field(default=["AAPL", "GOOGL", "MSFT", "AMZN", "META"])
     start_date: str = Field(default="2020-01-01")
