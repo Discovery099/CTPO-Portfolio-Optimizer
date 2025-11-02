@@ -297,12 +297,12 @@ async def run_backtest(request: BacktestRequest):
             summary={
                 "ctpo": {
                     **{k: float(v) for k, v in summary_ctpo.items() if k != 'results'},
-                    "comprehensive_metrics": {k: float(v) if not isinstance(v, (dict, list)) else v 
+                    "comprehensive_metrics": {k: float(v) if v is not None and not isinstance(v, (dict, list)) else (v if v is not None else 0.0)
                                             for k, v in comprehensive_ctpo.items()}
                 },
                 "equal_weight": {
                     **{k: float(v) for k, v in summary_ew.items() if k != 'results'},
-                    "comprehensive_metrics": {k: float(v) if not isinstance(v, (dict, list)) else v 
+                    "comprehensive_metrics": {k: float(v) if v is not None and not isinstance(v, (dict, list)) else (v if v is not None else 0.0)
                                             for k, v in comprehensive_ew.items()}
                 }
             },
