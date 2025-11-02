@@ -246,3 +246,25 @@ agent_communication:
       - Use backend testing agent for comprehensive API testing
       - Verify optimal weights are different from equal weights
       - Check Force Balance validation improves
+  - agent: "testing"
+    message: |
+      🎉 CRITICAL ISSUE RESOLVED! Root cause was CVXPY solver incompatibility, not constraint issues.
+      
+      PROBLEM: OSQP (QP solver) cannot handle conic constraints in CTPO optimization problem.
+      SOLUTION: Changed default solver from 'OSQP' to 'CLARABEL' with proper parameter handling.
+      
+      ✅ ALL BACKEND TESTS PASSING:
+      - 10-asset optimization: Weights optimized (std: 0.1871), Sharpe: 1.301, solver status: optimal
+      - 5-asset optimization: Weights optimized (std: 0.2449), Sharpe: 1.395, solver status: optimal  
+      - 3-asset optimization: Weights optimized (std: 0.4082), Sharpe: 3.689, solver status: optimal
+      - API endpoints: All working correctly with <1s response times
+      - Risk model integration: Functioning properly through optimization workflow
+      
+      🔧 TECHNICAL FIX APPLIED:
+      - Updated /app/ctpo-optimizer/ctpo/core/optimizer.py
+      - Changed default solver: 'OSQP' → 'CLARABEL'
+      - Added solver-specific parameter handling for different solvers
+      - No more "Problem could not be reduced to a QP" errors
+      
+      The constraint fixes from main agent are working as intended. The optimization is now producing 
+      optimal portfolio allocations instead of falling back to equal weights.
