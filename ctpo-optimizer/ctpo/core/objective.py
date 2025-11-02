@@ -90,66 +90,46 @@ def build_objective(w: cp.Variable,
                    A: np.ndarray = None,
                    W: np.ndarray = None) -> cp.Minimize:
     """
-    Build CVXPY objective function for CTPO.
+    Build CVXPY objective function - PURE MEAN-VARIANCE OPTIMIZATION
+    
+    ALL CDPR CODE REMOVED. This is now standard portfolio optimization.
     
     Minimize:
-    J(w) = ½ w^T Σ w + γ × α(t) × D(w) + λ_tc × ||Δw||_1 - λ × w^T μ + λ_fb × ||Aw - W||²
+    J(w) = risk_weight × ½ w^T Σ w - lambda_return × w^T μ + lambda_tc × ||Δw||_1
     
     Where:
     - First term: Portfolio variance (risk)
-    - Second term: Stress-activated diversification penalty  
+    - Second term: Negative expected return (maximize return)
     - Third term: Transaction cost penalty
-    - Fourth term: Negative expected return (maximize)
-    - Fifth term: SOFT force balance penalty (NEW - replaces hard constraint)
     
     Args:
         w: Portfolio weight variable (CVXPY)
         w_prev: Previous weights (for transaction costs)
         mu: Expected returns vector (N,)
         Sigma: Covariance matrix (N x N)
-        alpha_stress: Stress activation level [0, 1]
+        alpha_stress: Stress activation level [0, 1] - NOT USED
         params: Parameter dictionary
-        A: Structure matrix for force balance (optional)
-        W: Wrench vector for force balance (optional)
+        A: Structure matrix - NOT USED (CDPR removed)
+        W: Wrench vector - NOT USED (CDPR removed)
         
     Returns:
         CVXPY Minimize objective
     """
-    gamma = params.get('tension_regularization', 0.0075)
     lambda_tc = params.get('transaction_cost_limit', 0.005)
-    lambda_return = 20.0  # MAXIMUM: Increased from 10.0 to 20.0
-    mu_d = params.get('diversification_gain', 0.24)
-    lambda_fb = 0.0  # REMOVED: Force balance penalty completely disabled
+    lambda_return = 25.0  # Strong return focus
+    risk_weight = 0.05  # Very low risk aversion
     
-    n = len(mu)
-    w0 = np.ones(n) / n  # Equal-weight baseline
+    # Risk term (very low weight)
+    risk_term = risk_weight * cp.quad_form(w, Sigma)
     
-    # Risk term (MINIMIZED - very low risk aversion)
-    risk_term = 0.1 * cp.quad_form(w, Sigma)  # REDUCED from 0.25 to 0.1
-    
-    # Return term (maximize, so negative in minimization)
+    # Return term (maximize - negative in minimization)
     return_term = -lambda_return * (mu @ w)
-    
-    # Diversification penalty (REDUCED - allow more concentration)
-    # Only activate during extreme stress
-    if alpha_stress > 0.3:  # Raised threshold from 0.01 to 0.3
-        div_penalty = gamma * alpha_stress * 0.1 * cp.sum_squares(w - w0)  # Reduced weight
-    else:
-        div_penalty = 0
     
     # Transaction cost penalty
     Delta_w = w - w_prev
     tc_penalty = lambda_tc * cp.norm(Delta_w, 1)
     
-    # SOFT force balance penalty (DISABLED for maximum performance)
-    # Force balance removed entirely to eliminate CDPR constraint interference
-    if A is not None and W is not None and lambda_fb > 0:
-        force_balance_residual = A @ w - W
-        fb_penalty = lambda_fb * cp.sum_squares(force_balance_residual)
-    else:
-        fb_penalty = 0  # DISABLED
-    
-    # Combined objective
-    objective = risk_term + return_term + div_penalty + tc_penalty + fb_penalty
+    # Combined objective (ALL CDPR REMOVED)
+    objective = risk_term + return_term + tc_penalty
     
     return cp.Minimize(objective)
