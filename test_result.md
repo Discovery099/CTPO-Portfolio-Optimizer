@@ -165,7 +165,7 @@ backend:
 
   - task: "Risk Model Integration"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/ctpo-optimizer/ctpo/risk/risk_model.py"
     stuck_count: 0
     priority: "medium"
@@ -174,6 +174,9 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "Risk model components (GARCH, CAPM, correlation) implemented but not directly tested yet. Will test as part of optimization workflow."
+      - working: true
+        agent: "testing"
+        comment: "Risk model integration working correctly through optimization workflow. All risk metrics calculated properly: expected returns, betas, volatilities, covariance matrices, Sharpe ratios (1.301-3.689), portfolio volatility calculations. Risk model successfully integrated with CVXPY optimizer."
 
   - task: "API Endpoints"
     implemented: true
