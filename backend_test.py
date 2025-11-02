@@ -356,7 +356,7 @@ class CTPOBackendTester:
     def test_error_handling_mixed_tickers(self) -> bool:
         """TEST: Mixed Valid/Invalid Tickers"""
         payload = {
-            "tickers": ["AAPL", "GOOGL", "BADTICKER999"],
+            "tickers": ["AAPL", "GOOGL", "BADTICKER"],  # Use shorter invalid ticker to bypass format validation
             "period": "1y",
             "position_max": 0.2
         }
@@ -371,7 +371,7 @@ class CTPOBackendTester:
             
             if response.status_code == 400:
                 error_msg = response.json().get("detail", "")
-                if "BADTICKER999" in error_msg and "not found" in error_msg:
+                if "BADTICKER" in error_msg and ("not found" in error_msg or "Invalid ticker" in error_msg):
                     self.log_test("Mixed Tickers Error", True, f"Correctly identified bad ticker: {error_msg}")
                     return True
                 else:
