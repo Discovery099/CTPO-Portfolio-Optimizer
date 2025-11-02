@@ -527,7 +527,7 @@ class CTPOBackendTester:
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 80)
-        print("🚀 CTPO Backend API Testing - Enhanced Error Handling")
+        print("🚀 CTPO Backend API Testing - REFINED Error Messages (Priority 1 Fixes)")
         print("=" * 80)
         
         # Test 1: Basic connectivity
