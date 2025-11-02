@@ -85,7 +85,7 @@ class GARCHModel:
         Forecast volatility for specified horizon.
         
         Args:
-            horizon: Forecast horizon (days)\
+            horizon: Forecast horizon (days)
             
         Returns:
             Forecasted volatility (annualized if horizon=252)
