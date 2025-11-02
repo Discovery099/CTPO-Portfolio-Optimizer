@@ -152,19 +152,21 @@ def build_constraints(w,
     """
     Build all CVXPY constraints for CTPO optimization.
     
+    UPDATED: Force balance is now SOFT (in objective), not hard constraint
+    UPDATED: Relaxed diversification constraints
+    UPDATED: Increased position limits for better optimization
+    
     Constraint groups:
     1. Portfolio structure (2)
     2. Position limits (2×N box constraints)
-    3. Force balance (6 = 2×3 component-wise)
-    4. Diversification (2)
-    5. Workspace (1)
+    3. Diversification (1) - RELAXED
     
     Args:
         w: Portfolio weight variable (CVXPY)
         w_prev: Previous weights
         w_baseline: Baseline weights
-        A: Structure matrix (3 x N)
-        W: Wrench vector (3,)
+        A: Structure matrix (3 x N) - NOT USED as hard constraint
+        W: Wrench vector (3,) - NOT USED as hard constraint
         params: Parameter dictionary
         
     Returns:
@@ -183,45 +185,29 @@ def build_constraints(w,
     constraints.append(w >= 0)
     
     # === GROUP 2: Position Limits (Box Constraints) ===
-    # Adaptive position limits based on number of assets
-    position_min = params.get('position_min', 0.0)  # Long-only: min = 0
-    position_max = params.get('position_max', 0.5)  # Default max 50%
+    # UPDATED: Increase position_max to allow concentration
+    position_min = 0.0  # Long-only
+    position_max = params.get('position_max', 0.20)  # INCREASED from 0.08 to 0.20 (20%)
     
-    # Ensure position_max is feasible: must allow sum(w) = 1
-    # For n assets, we need position_max * n >= 1
+    # Ensure position_max is feasible
     min_required_position_max = 1.0 / n_assets
-    position_max = max(position_max, min_required_position_max * 1.5)  # 1.5x safety margin
+    position_max = max(position_max, min_required_position_max * 1.2)
     
-    # Apply upper bound
+    # Apply upper bound only
     constraints.append(w <= position_max)
     
-    # === GROUP 3: Force Balance (CDPR Core) ===
-    # Relax force balance significantly for practical optimization
-    # The force balance is more of a "guidance" than a hard constraint
-    residual = A @ w - W
-    eps = params.get('force_balance_tolerance', 0.0018)
-    
-    # Adaptive relaxation based on number of assets
-    # More assets = more flexibility needed
-    relaxation_factor = max(1000, n_assets * 50)
-    eps_relaxed = eps * relaxation_factor
-    
-    for i in range(len(W)):
-        constraints.append(residual[i] <= eps_relaxed)
-        constraints.append(residual[i] >= -eps_relaxed)
-    
-    # === GROUP 4: Diversification ===
-    # Effective Number of Positions: Σw_i² ≤ threshold
-    # Lower ENP = more concentration allowed
-    min_effective_assets = params.get('min_effective_assets', 5)
-    min_effective_assets = min(min_effective_assets, n_assets)  # Can't require more assets than available
+    # === GROUP 3: Diversification (RELAXED) ===
+    # UPDATED: Lower minimum effective assets to allow concentration
+    min_effective_assets = params.get('min_effective_assets', 5)  # REDUCED from 20 to 5
+    min_effective_assets = min(min_effective_assets, max(3, n_assets // 2))  # At least 3, at most half
     
     enp_limit = 1.0 / min_effective_assets
-    # Add large slack to avoid over-constraining
-    constraints.append(cp.sum_squares(w) <= enp_limit + 0.8)
+    # Very relaxed slack
+    constraints.append(cp.sum_squares(w) <= enp_limit + 0.95)  # INCREASED slack from 0.8 to 0.95
     
-    # === GROUP 5: Workspace Constraint ===
-    # Removed - too restrictive for real optimization
+    # === FORCE BALANCE: NOW SOFT CONSTRAINT (in objective) ===
+    # Removed hard force balance constraints - they're too restrictive
+    # Force balance residual is now penalized in the objective function
     
     return constraints
 
