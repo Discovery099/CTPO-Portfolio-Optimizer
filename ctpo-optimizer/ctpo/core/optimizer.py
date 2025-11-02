@@ -6,9 +6,41 @@ algorithms to portfolio optimization.
 """
 
 import numpy as np
+import cvxpy as cp
 from typing import Dict, List, Optional, Tuple
 import yaml
 import os
+from time import perf_counter
+from .objective import build_objective
+from .constraints import (
+    build_constraints, 
+    construct_structure_matrix, 
+    construct_wrench_vector
+)
+
+
+# Default system parameters
+SYSTEM_PARAMS = {
+    'n_assets': 152,
+    'volatility_threshold': 0.23,
+    'correlation_breakdown': 0.85,
+    'risk_free_rate': 0.042,
+    'tension_regularization': 0.0075,
+    'workspace_constraint': 0.92,
+    'cable_stiffness': 310.0,
+    'force_balance_tolerance': 0.0018,
+    'diversification_gain': 0.24,
+    'transaction_cost_limit': 0.005,
+    'leverage_max': 2.0,
+    'position_max': 0.08,
+    'position_min': -0.05,
+    'min_effective_assets': 20,
+    'condition_number_max': 10000,
+    'max_iterations': 200,
+    'ftol': 1e-6,
+    'solver': 'OSQP',
+    'warm_start': True
+}
 
 
 class CTPOState:
