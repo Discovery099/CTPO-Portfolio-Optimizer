@@ -591,7 +591,8 @@ const Dashboard = () => {
 
               <Card className="shadow-lg border-0">
                 <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
-                  <CardTitle>CDPR Validation</CardTitle>
+                  <CardTitle>Diversification Metrics</CardTitle>
+                  <CardDescription>Portfolio concentration analysis</CardDescription>
                   <CardDescription>Force balance and diversification</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-4">
