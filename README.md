@@ -1,10 +1,13 @@
-# Portfolio Optimizer
+# CTPO Portfolio Optimizer
 
 **A production-ready portfolio optimization system using modern mean-variance optimization with user-configurable risk controls.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![React 18](https://img.shields.io/badge/react-18-blue.svg)](https://reactjs.org/)
+[![GitHub](https://img.shields.io/badge/github-Discovery099/CTPO--Portfolio--Optimizer-blue?logo=github)](https://github.com/Discovery099/CTPO-Portfolio-Optimizer)
+
+🔗 **Repository:** [https://github.com/Discovery099/CTPO-Portfolio-Optimizer](https://github.com/Discovery099/CTPO-Portfolio-Optimizer)
 
 ---
 
