@@ -257,10 +257,210 @@ class CTPOBackendTester:
             self.log_test("3-Asset Edge Case", False, f"Request error: {str(e)}")
             return False
     
+    def test_error_handling_invalid_ticker(self) -> bool:
+        """TEST: Invalid Ticker Error Handling"""
+        payload = {
+            "tickers": ["INVALIDXYZ123"],
+            "period": "1y",
+            "position_max": 0.2
+        }
+        
+        try:
+            print(f"\n🔧 Testing invalid ticker error handling...")
+            response = requests.post(
+                f"{self.backend_url}/api/optimize",
+                json=payload,
+                timeout=10
+            )
+            
+            if response.status_code == 400:
+                error_msg = response.json().get("detail", "")
+                if "Invalid ticker(s): INVALIDXYZ123 not found" in error_msg:
+                    self.log_test("Invalid Ticker Error", True, f"Correct error message: {error_msg}")
+                    return True
+                else:
+                    self.log_test("Invalid Ticker Error", False, f"Wrong error message: {error_msg}")
+                    return False
+            else:
+                self.log_test("Invalid Ticker Error", False, f"Expected 400, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Invalid Ticker Error", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_error_handling_single_stock(self) -> bool:
+        """TEST: Single Stock Portfolio Error"""
+        payload = {
+            "tickers": ["AAPL"],
+            "period": "1y",
+            "position_max": 0.2
+        }
+        
+        try:
+            print(f"\n🔧 Testing single stock error handling...")
+            response = requests.post(
+                f"{self.backend_url}/api/optimize",
+                json=payload,
+                timeout=10
+            )
+            
+            if response.status_code == 400:
+                error_msg = response.json().get("detail", "")
+                if "Portfolio optimization requires at least 2 assets" in error_msg:
+                    self.log_test("Single Stock Error", True, f"Correct error message: {error_msg}")
+                    return True
+                else:
+                    self.log_test("Single Stock Error", False, f"Wrong error message: {error_msg}")
+                    return False
+            else:
+                self.log_test("Single Stock Error", False, f"Expected 400, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Single Stock Error", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_error_handling_empty_portfolio(self) -> bool:
+        """TEST: Empty Portfolio Error"""
+        payload = {
+            "tickers": [],
+            "period": "1y",
+            "position_max": 0.2
+        }
+        
+        try:
+            print(f"\n🔧 Testing empty portfolio error handling...")
+            response = requests.post(
+                f"{self.backend_url}/api/optimize",
+                json=payload,
+                timeout=10
+            )
+            
+            if response.status_code == 400:
+                error_msg = response.json().get("detail", "")
+                if "No tickers provided" in error_msg:
+                    self.log_test("Empty Portfolio Error", True, f"Correct error message: {error_msg}")
+                    return True
+                else:
+                    self.log_test("Empty Portfolio Error", False, f"Wrong error message: {error_msg}")
+                    return False
+            else:
+                self.log_test("Empty Portfolio Error", False, f"Expected 400, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Empty Portfolio Error", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_error_handling_mixed_tickers(self) -> bool:
+        """TEST: Mixed Valid/Invalid Tickers"""
+        payload = {
+            "tickers": ["AAPL", "GOOGL", "BADTICKER999"],
+            "period": "1y",
+            "position_max": 0.2
+        }
+        
+        try:
+            print(f"\n🔧 Testing mixed valid/invalid tickers...")
+            response = requests.post(
+                f"{self.backend_url}/api/optimize",
+                json=payload,
+                timeout=10
+            )
+            
+            if response.status_code == 400:
+                error_msg = response.json().get("detail", "")
+                if "BADTICKER999" in error_msg and "not found" in error_msg:
+                    self.log_test("Mixed Tickers Error", True, f"Correctly identified bad ticker: {error_msg}")
+                    return True
+                else:
+                    self.log_test("Mixed Tickers Error", False, f"Failed to identify bad ticker: {error_msg}")
+                    return False
+            else:
+                self.log_test("Mixed Tickers Error", False, f"Expected 400, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Mixed Tickers Error", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_error_handling_ticker_format(self) -> bool:
+        """TEST: Ticker Format Validation"""
+        payload = {
+            "tickers": ["AAPL", "THISISAVERYLONGTICKERNAME"],
+            "period": "1y",
+            "position_max": 0.2
+        }
+        
+        try:
+            print(f"\n🔧 Testing ticker format validation...")
+            response = requests.post(
+                f"{self.backend_url}/api/optimize",
+                json=payload,
+                timeout=10
+            )
+            
+            if response.status_code == 400:
+                error_msg = response.json().get("detail", "")
+                if "Invalid ticker format" in error_msg and "THISISAVERYLONGTICKERNAME" in error_msg:
+                    self.log_test("Ticker Format Error", True, f"Correct format validation: {error_msg}")
+                    return True
+                else:
+                    self.log_test("Ticker Format Error", False, f"Wrong format error: {error_msg}")
+                    return False
+            else:
+                self.log_test("Ticker Format Error", False, f"Expected 400, got {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Ticker Format Error", False, f"Request error: {str(e)}")
+            return False
+    
+    def test_valid_optimization_baseline(self) -> bool:
+        """TEST: Valid Optimization (Baseline)"""
+        payload = {
+            "tickers": ["AAPL", "GOOGL", "MSFT"],
+            "period": "1y",
+            "position_max": 0.2
+        }
+        
+        try:
+            print(f"\n🔧 Testing valid optimization baseline...")
+            start_time = time.time()
+            
+            response = requests.post(
+                f"{self.backend_url}/api/optimize",
+                json=payload,
+                timeout=30
+            )
+            
+            elapsed = time.time() - start_time
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Check response time (should be under 2 seconds as per requirements)
+                if elapsed > 2:
+                    self.log_test("Valid Optimization - Response Time", False, f"Took {elapsed:.1f}s (>2s)")
+                    return False
+                else:
+                    self.log_test("Valid Optimization - Response Time", True, f"Completed in {elapsed:.1f}s")
+                
+                # Validate the optimization result
+                return self.validate_optimization_result(data, "Valid Optimization Baseline", 3)
+            else:
+                self.log_test("Valid Optimization Baseline", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Valid Optimization Baseline", False, f"Request error: {str(e)}")
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 80)
-        print("🚀 CTPO Backend API Testing - Critical Constraint Fixes")
+        print("🚀 CTPO Backend API Testing - Enhanced Error Handling")
         print("=" * 80)
         
         # Test 1: Basic connectivity
@@ -271,7 +471,23 @@ class CTPOBackendTester:
         # Test 2: Popular tickers endpoint
         self.test_popular_tickers()
         
-        # Test 3: Critical optimization tests
+        # Test 3: Error Handling Tests (Priority Order)
+        print("\n" + "=" * 60)
+        print("🔍 ERROR HANDLING VALIDATION TESTS")
+        print("=" * 60)
+        
+        error_test_1 = self.test_error_handling_invalid_ticker()
+        error_test_2 = self.test_error_handling_single_stock()
+        error_test_3 = self.test_error_handling_empty_portfolio()
+        error_test_4 = self.test_error_handling_mixed_tickers()
+        error_test_5 = self.test_error_handling_ticker_format()
+        error_test_6 = self.test_valid_optimization_baseline()
+        
+        # Test 4: Original optimization tests
+        print("\n" + "=" * 60)
+        print("⚙️  OPTIMIZATION FUNCTIONALITY TESTS")
+        print("=" * 60)
+        
         test_10_passed = self.test_optimization_10_assets()
         test_5_passed = self.test_optimization_5_assets()
         test_3_passed = self.test_optimization_3_assets_edge_case()
