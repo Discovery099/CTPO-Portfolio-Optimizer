@@ -418,7 +418,7 @@ const Dashboard = () => {
             <div className="flex justify-center">
               <Button 
                 onClick={exportToCSV}
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg shadow-lg"
+                className="bg-green-600 hover:bg-green-700 text-white px-6 md:px-8 py-3 text-base md:text-lg shadow-lg min-h-[48px]"
               >
                 <Download className="w-5 h-5 mr-2" />
                 Export Results to CSV
