@@ -727,18 +727,26 @@ const Dashboard = () => {
             <div className="flex flex-wrap gap-4 text-sm text-gray-500">
               <a href="#" className="hover:text-blue-600 transition-colors">About</a>
               <span>|</span>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+              <a href="https://github.com/Discovery099/CTPO-Portfolio-Optimizer" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors flex items-center gap-1">
                 <Github className="w-4 h-4" />
                 GitHub
               </a>
               <span>|</span>
-              <a href="#" className="hover:text-blue-600 transition-colors">Methodology</a>
+              <a href="https://github.com/Discovery099/CTPO-Portfolio-Optimizer#readme" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">Methodology</a>
               <span>|</span>
-              <a href="#" className="hover:text-blue-600 transition-colors">Contact</a>
+              <a href="https://github.com/Discovery099/CTPO-Portfolio-Optimizer/issues" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">Contact</a>
             </div>
             
             <p className="mt-6 text-xs text-gray-400">
-              © 2025 CTPO Portfolio Optimizer. Free & Open Source. Made with Emergent AI.
+              © 2025 CTPO Portfolio Optimizer. Free & Open Source. 
+              <a 
+                href="https://github.com/Discovery099/CTPO-Portfolio-Optimizer" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="ml-1 hover:text-blue-600"
+              >
+                View on GitHub
+              </a>
             </p>
           </div>
         </div>
