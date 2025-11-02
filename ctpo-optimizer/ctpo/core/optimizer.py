@@ -1,38 +1,27 @@
 """
-CTPO Optimizer - Main optimization engine
+Pure Mean-Variance Portfolio Optimization
 
-Applies Cable-Driven Parallel Robot (CDPR) force distribution
-algorithms to portfolio optimization.
+This optimizer uses standard mean-variance optimization (Markowitz) 
+with modern CVXPY solver for fast, reliable portfolio allocation.
+
+No CDPR (Cable-Driven Parallel Robot) code - that approach didn't 
+improve performance and added unnecessary complexity.
 """
 
 import numpy as np
 import cvxpy as cp
-from typing import Dict, List, Optional, Tuple
-import yaml
-import os
-from time import perf_counter
-from .objective import build_objective
-from .constraints import (
-    build_constraints, 
-    construct_structure_matrix, 
-    construct_wrench_vector
-)
+from typing import Dict, Tuple
+import time
 
-
-# Default system parameters - PURE MEAN-VARIANCE (CDPR REMOVED)
+# Default system parameters - SIMPLIFIED
 SYSTEM_PARAMS = {
-    'n_assets': 152,
-    'volatility_threshold': 0.23,
-    'correlation_breakdown': 0.85,
     'risk_free_rate': 0.042,
     'transaction_cost_limit': 0.005,
-    'position_max': 0.30,  # Increased to 30% for concentration
+    'position_max': 0.20,  # Default 20% - user configurable
     'position_min': 0.0,   # Long-only
-    'condition_number_max': 10000,
     'max_iterations': 200,
     'ftol': 1e-6,
-    'solver': 'CLARABEL',
-    'warm_start': True
+    'solver': 'CLARABEL'
 }
 
 
