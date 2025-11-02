@@ -575,7 +575,7 @@ const Dashboard = () => {
                 <CardDescription>Weight distribution across assets</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="h-80">
+                <div className="h-64 md:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={metricsData}>
                       <CartesianGrid strokeDasharray="3 3" />
