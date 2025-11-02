@@ -268,12 +268,12 @@ async def optimize_portfolio(request: OptimizationRequest):
         if '2-d' in error_msg or 'dimension' in error_msg:
             raise HTTPException(
                 status_code=400,
-                detail="Portfolio optimization requires at least 2 assets. Please add more tickers."
+                detail="Need at least 2 assets for portfolio optimization"
             )
         elif 'ticker' in error_msg or 'symbol' in error_msg:
             raise HTTPException(
                 status_code=400,
-                detail="One or more tickers are invalid. Please check your ticker symbols."
+                detail="One or more tickers are invalid. Please use valid Yahoo Finance symbols"
             )
         else:
             raise HTTPException(
