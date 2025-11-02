@@ -379,6 +379,17 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
+            
+            {/* Export Button */}
+            <div className="flex justify-center">
+              <Button 
+                onClick={exportToCSV}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg shadow-lg"
+              >
+                <Download className="w-5 h-5 mr-2" />
+                Export Results to CSV
+              </Button>
+            </div>
 
             {/* Portfolio Weights */}
             <Card className="shadow-lg border-0">
