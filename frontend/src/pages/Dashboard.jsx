@@ -339,19 +339,19 @@ const Dashboard = () => {
                     {result.cdpr_analysis.force_balance_satisfied ? (
                       <Badge className="bg-green-500 text-white text-base px-3 py-1">
                         <CheckCircle2 className="w-4 h-4 mr-1" />
-                        Satisfied
+                        N/A (CDPR Removed)
                       </Badge>
                     ) : (
-                      <Badge variant="destructive" className="text-base px-3 py-1">
+                      <Badge variant="secondary" className="text-base px-3 py-1">
                         <AlertCircle className="w-4 h-4 mr-1" />
-                        Violated
+                        N/A (CDPR Removed)
                       </Badge>
                     )}
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Force Residual</span>
                     <Badge variant="secondary" className="text-base px-3 py-1">
-                      {result.cdpr_analysis.force_residual.toFixed(6)}
+                      {result.cdpr_analysis.force_residual_norm.toFixed(6)}
                     </Badge>
                   </div>
                   <div className="flex justify-between items-center">
@@ -363,7 +363,7 @@ const Dashboard = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Diversification Ratio</span>
                     <Badge variant="secondary" className="text-base px-3 py-1">
-                      {result.risk_analysis.diversification_ratio.toFixed(2)}
+                      {result.cdpr_analysis.diversification_ratio.toFixed(2)}
                     </Badge>
                   </div>
                 </CardContent>
