@@ -166,8 +166,17 @@ const Dashboard = () => {
   };
 
   const runOptimization = async () => {
+    // Validate before running
+    const validationErr = validateTickers(tickers);
+    if (validationErr) {
+      setValidationError(validationErr);
+      setError(validationErr);
+      return;
+    }
+    
     setLoading(true);
     setError(null);
+    setValidationError(null);
     
     try {
       const tickerList = tickers.split(',').map(t => t.trim().toUpperCase()).filter(t => t);
