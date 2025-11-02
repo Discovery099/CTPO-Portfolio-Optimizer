@@ -212,6 +212,7 @@ async def run_backtest(request: BacktestRequest):
     try:
         from ctpo.execution.backtester import Backtester
         from ctpo.risk.risk_model import RiskModel
+        from ctpo.metrics.performance import PerformanceMetrics
         
         # Fetch historical data
         fetcher = DataFetcher()
@@ -266,6 +267,11 @@ async def run_backtest(request: BacktestRequest):
         )
         summary_ctpo = backtester_ctpo.get_summary()
         
+        # Calculate comprehensive metrics for CTPO
+        metrics_calc = PerformanceMetrics(risk_free_rate=0.042)
+        ctpo_returns = results_ctpo['returns']
+        comprehensive_ctpo = metrics_calc.calculate_all(ctpo_returns)
+        
         # Run equal-weight baseline
         backtester_ew = Backtester(
             initial_capital=request.initial_capital,
@@ -278,6 +284,10 @@ async def run_backtest(request: BacktestRequest):
         )
         summary_ew = backtester_ew.get_summary()
         
+        # Calculate comprehensive metrics for baseline
+        ew_returns = results_ew['returns']
+        comprehensive_ew = metrics_calc.calculate_all(ew_returns)
+        
         # Calculate improvements
         sharpe_improvement = summary_ctpo['sharpe_ratio'] - summary_ew['sharpe_ratio']
         drawdown_improvement = (summary_ew['max_drawdown'] - summary_ctpo['max_drawdown']) / abs(summary_ew['max_drawdown'])
@@ -286,22 +296,14 @@ async def run_backtest(request: BacktestRequest):
         result = BacktestResult(
             summary={
                 "ctpo": {
-                    "total_return": float(summary_ctpo['total_return']),
-                    "sharpe_ratio": float(summary_ctpo['sharpe_ratio']),
-                    "max_drawdown": float(summary_ctpo['max_drawdown']),
-                    "volatility": float(summary_ctpo['volatility']),
-                    "num_trades": int(summary_ctpo['num_trades']),
-                    "final_value": float(summary_ctpo['final_value']),
-                    "calmar_ratio": float(summary_ctpo['calmar_ratio'])
+                    **{k: float(v) for k, v in summary_ctpo.items() if k != 'results'},
+                    "comprehensive_metrics": {k: float(v) if not isinstance(v, (dict, list)) else v 
+                                            for k, v in comprehensive_ctpo.items()}
                 },
                 "equal_weight": {
-                    "total_return": float(summary_ew['total_return']),
-                    "sharpe_ratio": float(summary_ew['sharpe_ratio']),
-                    "max_drawdown": float(summary_ew['max_drawdown']),
-                    "volatility": float(summary_ew['volatility']),
-                    "num_trades": int(summary_ew['num_trades']),
-                    "final_value": float(summary_ew['final_value']),
-                    "calmar_ratio": float(summary_ew['calmar_ratio'])
+                    **{k: float(v) for k, v in summary_ew.items() if k != 'results'},
+                    "comprehensive_metrics": {k: float(v) if not isinstance(v, (dict, list)) else v 
+                                            for k, v in comprehensive_ew.items()}
                 }
             },
             portfolio_values=results_ctpo['portfolio_value'].tolist(),
@@ -309,7 +311,8 @@ async def run_backtest(request: BacktestRequest):
             comparison={
                 "sharpe_improvement": float(sharpe_improvement),
                 "drawdown_improvement": float(drawdown_improvement),
-                "return_difference": float(summary_ctpo['total_return'] - summary_ew['total_return'])
+                "return_difference": float(summary_ctpo['total_return'] - summary_ew['total_return']),
+                "volatility_difference": float(comprehensive_ctpo['volatility'] - comprehensive_ew['volatility'])
             }
         )
         
