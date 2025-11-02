@@ -114,6 +114,39 @@ const Dashboard = () => {
                   </select>
                 </div>
               </div>
+              
+              {/* NEW: Position Limit Slider */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Maximum Position Size: {(positionMax * 100).toFixed(0)}%
+                  <span className="text-xs text-gray-500 ml-2">
+                    (Higher = More concentration = Higher risk/return)
+                  </span>
+                </label>
+                <div className="flex items-center gap-4">
+                  <span className="text-xs text-gray-500">Conservative<br/>15%</span>
+                  <input
+                    type="range"
+                    min="0.15"
+                    max="0.50"
+                    step="0.05"
+                    value={positionMax}
+                    onChange={(e) => setPositionMax(parseFloat(e.target.value))}
+                    className="flex-1 h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <span className="text-xs text-gray-500">Aggressive<br/>50%</span>
+                </div>
+                <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                  <p className="text-xs text-amber-800 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    {positionMax <= 0.20 ? 
+                      "Balanced (20% limit): Good risk/return tradeoff" :
+                      positionMax <= 0.30 ?
+                      "Moderate (25-30% limit): Higher returns, moderate risk increase" :
+                      "Aggressive (35-50% limit): Maximum returns but significantly higher risk"}
+                  </p>
+                </div>
+              </div>
 
               <Button 
                 data-testid="optimize-button"
