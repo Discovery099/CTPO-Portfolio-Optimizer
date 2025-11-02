@@ -295,34 +295,34 @@ const Dashboard = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Market Volatility</span>
                     <Badge variant="secondary" className="text-base px-3 py-1">
-                      {(result.metrics.market_volatility * 100).toFixed(2)}%
+                      {result.risk_analysis.market_volatility.toFixed(2)}%
                     </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Portfolio Volatility</span>
                     <Badge variant="secondary" className="text-base px-3 py-1">
-                      {(result.risk_analysis.portfolio_volatility * 100).toFixed(2)}%
+                      {result.risk_analysis.portfolio_volatility.toFixed(2)}%
                     </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Avg Correlation</span>
                     <Badge variant="secondary" className="text-base px-3 py-1">
-                      {result.metrics.avg_correlation.toFixed(3)}
+                      {result.risk_analysis.avg_correlation.toFixed(3)}
                     </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Stress Level (α)</span>
                     <Badge 
-                      variant={result.metrics.stress_level > 0.5 ? "destructive" : "secondary"}
+                      variant={result.risk_analysis.stress_level > 0.5 ? "destructive" : "secondary"}
                       className="text-base px-3 py-1"
                     >
-                      {result.metrics.stress_level.toFixed(3)}
+                      {result.risk_analysis.stress_level.toFixed(3)}
                     </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Condition Number</span>
                     <Badge variant="secondary" className="text-base px-3 py-1">
-                      {result.risk_analysis.covariance_condition_number.toFixed(0)}
+                      {result.risk_analysis.covariance_condition.toFixed(0)}
                     </Badge>
                   </div>
                 </CardContent>
