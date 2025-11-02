@@ -29,12 +29,13 @@ SYSTEM_PARAMS = {
     'workspace_constraint': 0.92,
     'cable_stiffness': 310.0,
     'force_balance_tolerance': 0.0018,
+    'force_balance_penalty': 0.001,  # NEW: Soft penalty weight
     'diversification_gain': 0.24,
     'transaction_cost_limit': 0.005,
     'leverage_max': 2.0,
-    'position_max': 0.08,
-    'position_min': -0.05,
-    'min_effective_assets': 20,
+    'position_max': 0.20,  # INCREASED from 0.08 to 0.20 (20%)
+    'position_min': 0.0,   # Long-only
+    'min_effective_assets': 5,  # REDUCED from 20 to 5
     'condition_number_max': 10000,
     'max_iterations': 200,
     'ftol': 1e-6,
