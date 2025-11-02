@@ -433,7 +433,7 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div className="h-80">
+                  <div className="h-64 md:h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <RePieChart>
                         <Pie
@@ -442,7 +442,7 @@ const Dashboard = () => {
                           cy="50%"
                           labelLine={false}
                           label={({ name, value }) => `${name}: ${value.toFixed(1)}%`}
-                          outerRadius={100}
+                          outerRadius="70%"
                           fill="#8884d8"
                           dataKey="value"
                         >
