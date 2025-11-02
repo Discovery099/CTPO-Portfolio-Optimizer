@@ -204,6 +204,123 @@ async def get_popular_tickers():
         }
     }
 
+@api_router.post("/backtest", response_model=BacktestResult)
+async def run_backtest(request: BacktestRequest):
+    """
+    Run historical backtest of CTPO strategy.
+    """
+    try:
+        from ctpo.execution.backtester import Backtester
+        from ctpo.risk.risk_model import RiskModel
+        
+        # Fetch historical data
+        fetcher = DataFetcher()
+        returns_df = fetcher.fetch_returns(
+            request.tickers,
+            start_date=request.start_date,
+            end_date=request.end_date
+        )
+        
+        if returns_df.empty or len(returns_df) < 100:
+            raise HTTPException(status_code=400, detail="Insufficient data for backtesting")
+        
+        # Initialize risk model
+        risk_model = RiskModel(params={
+            'risk_free_rate': 0.042,
+            'volatility_threshold': 0.23,
+            'correlation_breakdown': 0.85,
+            'lambda_stress': 0.15
+        })
+        
+        # Define weight function for CTPO
+        def ctpo_weight_function(hist_returns):
+            # Use integrated risk model
+            hist_returns_df = pd.DataFrame(hist_returns, columns=request.tickers)
+            risk_params = risk_model.update(hist_returns_df, market_return=0.10)
+            
+            # Run optimization
+            optimizer = CTPOOptimizer()
+            market_returns = hist_returns_df.mean(axis=1).values
+            weights = optimizer.optimize(
+                hist_returns,
+                covariance=risk_params['Sigma'],
+                expected_returns=risk_params['mu'],
+                market_returns=market_returns
+            )
+            return weights
+        
+        # Define equal-weight baseline
+        def equal_weight_function(hist_returns):
+            n = hist_returns.shape[1]
+            return np.ones(n) / n
+        
+        # Run CTPO backtest
+        backtester_ctpo = Backtester(
+            initial_capital=request.initial_capital,
+            transaction_cost=0.001
+        )
+        results_ctpo = backtester_ctpo.run(
+            returns_df,
+            ctpo_weight_function,
+            rebalance_frequency=request.rebalance_frequency
+        )
+        summary_ctpo = backtester_ctpo.get_summary()
+        
+        # Run equal-weight baseline
+        backtester_ew = Backtester(
+            initial_capital=request.initial_capital,
+            transaction_cost=0.001
+        )
+        results_ew = backtester_ew.run(
+            returns_df,
+            equal_weight_function,
+            rebalance_frequency=request.rebalance_frequency
+        )
+        summary_ew = backtester_ew.get_summary()
+        
+        # Calculate improvements
+        sharpe_improvement = summary_ctpo['sharpe_ratio'] - summary_ew['sharpe_ratio']
+        drawdown_improvement = (summary_ew['max_drawdown'] - summary_ctpo['max_drawdown']) / abs(summary_ew['max_drawdown'])
+        
+        # Format response
+        result = BacktestResult(
+            summary={
+                "ctpo": {
+                    "total_return": float(summary_ctpo['total_return']),
+                    "sharpe_ratio": float(summary_ctpo['sharpe_ratio']),
+                    "max_drawdown": float(summary_ctpo['max_drawdown']),
+                    "volatility": float(summary_ctpo['volatility']),
+                    "num_trades": int(summary_ctpo['num_trades']),
+                    "final_value": float(summary_ctpo['final_value']),
+                    "calmar_ratio": float(summary_ctpo['calmar_ratio'])
+                },
+                "equal_weight": {
+                    "total_return": float(summary_ew['total_return']),
+                    "sharpe_ratio": float(summary_ew['sharpe_ratio']),
+                    "max_drawdown": float(summary_ew['max_drawdown']),
+                    "volatility": float(summary_ew['volatility']),
+                    "num_trades": int(summary_ew['num_trades']),
+                    "final_value": float(summary_ew['final_value']),
+                    "calmar_ratio": float(summary_ew['calmar_ratio'])
+                }
+            },
+            portfolio_values=results_ctpo['portfolio_value'].tolist(),
+            dates=[d.strftime('%Y-%m-%d') for d in results_ctpo['date']],
+            comparison={
+                "sharpe_improvement": float(sharpe_improvement),
+                "drawdown_improvement": float(drawdown_improvement),
+                "return_difference": float(summary_ctpo['total_return'] - summary_ew['total_return'])
+            }
+        )
+        
+        return result
+        
+    except Exception as e:
+        logging.error(f"Backtest error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Backtest failed: {str(e)}")
+
 # Include the router in the main app
 app.include_router(api_router)
 
