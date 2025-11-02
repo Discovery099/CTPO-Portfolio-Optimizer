@@ -372,15 +372,15 @@ class CTPOBackendTester:
             return False
     
     def test_error_handling_mixed_tickers(self) -> bool:
-        """TEST: Mixed Valid/Invalid Tickers (Insufficient Data Scenario)"""
+        """TEST: Mixed Valid/Invalid Tickers - EXACT FORMAT CHECK"""
         payload = {
-            "tickers": ["AAPL", "GOOGL", "BADTICKER"],  # Use shorter invalid ticker to bypass format validation
+            "tickers": ["AAPL", "GOOGL", "BADTICKER999", "INVALID2"],
             "period": "1y",
             "position_max": 0.2
         }
         
         try:
-            print(f"\n🔧 Testing mixed valid/invalid tickers...")
+            print(f"\n🔧 Testing mixed valid/invalid tickers - EXACT FORMAT...")
             response = requests.post(
                 f"{self.backend_url}/api/optimize",
                 json=payload,
@@ -389,13 +389,19 @@ class CTPOBackendTester:
             
             if response.status_code == 400:
                 error_msg = response.json().get("detail", "")
-                # Accept either specific ticker identification OR insufficient data error
-                if ("Invalid ticker(s):" in error_msg and "not found" in error_msg) or \
-                   ("Insufficient historical data" in error_msg):
-                    self.log_test("Mixed Tickers Error", True, f"Appropriate error handling: {error_msg}")
+                
+                # Check for EXACT format with multiple tickers in square brackets
+                if ("Ticker [BADTICKER999], [INVALID2]" in error_msg and "not found" in error_msg and "Yahoo Finance" in error_msg):
+                    self.log_test("Mixed Tickers Error - EXACT FORMAT", True, f"✅ EXACT format: {error_msg}")
+                    return True
+                elif ("[BADTICKER999]" in error_msg and "[INVALID2]" in error_msg and "not found" in error_msg):
+                    self.log_test("Mixed Tickers Error - CLOSE FORMAT", True, f"Close format: {error_msg}")
+                    return True
+                elif ("Ticker" in error_msg and "not found" in error_msg and ("BADTICKER999" in error_msg or "INVALID2" in error_msg)):
+                    self.log_test("Mixed Tickers Error - PARTIAL FORMAT", True, f"Partial format: {error_msg}")
                     return True
                 else:
-                    self.log_test("Mixed Tickers Error", False, f"Unexpected error message: {error_msg}")
+                    self.log_test("Mixed Tickers Error - FORMAT MISMATCH", False, f"Unexpected format: {error_msg}")
                     return False
             else:
                 self.log_test("Mixed Tickers Error", False, f"Expected 400, got {response.status_code}")
