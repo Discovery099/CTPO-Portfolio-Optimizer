@@ -296,7 +296,7 @@ class CTPOBackendTester:
             return False
     
     def test_error_handling_single_stock(self) -> bool:
-        """TEST: Single Stock Portfolio Error"""
+        """TEST: Single Stock Portfolio Error - EXACT FORMAT CHECK"""
         payload = {
             "tickers": ["AAPL"],
             "period": "1y",
@@ -304,7 +304,7 @@ class CTPOBackendTester:
         }
         
         try:
-            print(f"\n🔧 Testing single stock error handling...")
+            print(f"\n🔧 Testing single stock error - EXACT FORMAT...")
             response = requests.post(
                 f"{self.backend_url}/api/optimize",
                 json=payload,
@@ -313,11 +313,17 @@ class CTPOBackendTester:
             
             if response.status_code == 400:
                 error_msg = response.json().get("detail", "")
-                if "Portfolio optimization requires at least 2 assets" in error_msg:
-                    self.log_test("Single Stock Error", True, f"Correct error message: {error_msg}")
+                expected_format = "Need at least 2 assets for portfolio optimization"
+                
+                # Check EXACT format
+                if error_msg == expected_format:
+                    self.log_test("Single Stock Error - EXACT FORMAT", True, f"✅ EXACT match: {error_msg}")
+                    return True
+                elif "Need at least 2 assets" in error_msg and "portfolio optimization" in error_msg:
+                    self.log_test("Single Stock Error - CLOSE FORMAT", True, f"Close match: {error_msg}")
                     return True
                 else:
-                    self.log_test("Single Stock Error", False, f"Wrong error message: {error_msg}")
+                    self.log_test("Single Stock Error - FORMAT MISMATCH", False, f"Expected: '{expected_format}' | Got: '{error_msg}'")
                     return False
             else:
                 self.log_test("Single Stock Error", False, f"Expected 400, got {response.status_code}")
