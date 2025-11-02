@@ -25,94 +25,30 @@ SYSTEM_PARAMS = {
 }
 
 
-class CTPOState:
+class PortfolioOptimizer:
     """
-    State vector for CTPO optimization.
+    Mean-Variance Portfolio Optimizer
     
-    Maintains all necessary state variables for the optimization problem.
+    Uses modern convex optimization (CVXPY) for fast, reliable 
+    portfolio allocation based on expected returns and risk.
     """
     
-    def __init__(self, n_assets: int = 152):
+    def __init__(self, params: Dict = None):
         """
-        Initialize optimization state.
+        Initialize the optimizer.
         
         Args:
-            n_assets: Number of assets in universe
+            params: Optional parameter overrides
         """
-        self.n = n_assets
-        self.w = np.ones(n_assets) / n_assets  # Portfolio weights (decision variables)
-        self.w_prev = self.w.copy()             # Previous weights (for transaction costs)
-        self.mu = np.zeros(n_assets)            # Expected returns (updated each period)
-        self.Sigma = np.eye(n_assets) * 0.01    # Covariance matrix (PSD, conditioned)
-        self.sigma_market = 0.15                 # Market volatility (GARCH estimated)
-        self.rho_realized = 0.50                 # Average correlation (rolling)
-        self.alpha_stress = 0.0                  # Stress activation [0,1]
-        self.beta = np.ones(n_assets)            # CAPM betas vs market proxy
-        self.volatilities = np.ones(n_assets) * 0.15  # Individual asset volatilities
-    
-    def update_from_data(self, 
-                        returns: np.ndarray,
-                        market_returns: Optional[np.ndarray] = None):
-        """
-        Update state variables from new return data.
-        
-        Args:
-            returns: Asset returns (T x N)
-            market_returns: Market returns (T,), optional
-        """
-        # Update dimensions if needed
-        n_assets = returns.shape[1]
-        if n_assets != self.n:
-            self.n = n_assets
-            self.w = np.ones(n_assets) / n_assets
-            self.w_prev = self.w.copy()
-            self.beta = np.ones(n_assets)
-        
-        # Compute basic statistics
-        self.mu = returns.mean(axis=0)
-        self.Sigma = np.cov(returns.T)
-        
-        # Market volatility
-        if market_returns is None:
-            market_returns = returns.mean(axis=1)
-        self.sigma_market = np.std(market_returns)
-        
-        # Average correlation
-        correlation = np.corrcoef(returns.T)
-        n = correlation.shape[0]
-        self.rho_realized = (np.sum(correlation) - n) / (n * (n - 1))
-
-
-class CTPOOptimizer:
-    """
-    Main CTPO optimization engine.
-    
-    Maps portfolio weights to cable tensions in a CDPR system,
-    enforcing force balance constraints for robust diversification.
-    """
-    
-    def __init__(self, config_path: Optional[str] = None):
-        """
-        Initialize the CTPO optimizer.
-        
-        Args:
-            config_path: Path to configuration YAML file
-        """
-        self.config = self._load_config(config_path)
-        self.params = {**SYSTEM_PARAMS, **self.config.get('computational', {}), 
-                       **self.config.get('integration', {}), **self.config.get('solver', {})}
-        
-        self.state = None
-        self.weights = None
+        self.params = {**SYSTEM_PARAMS, **(params or {})}
         self.w_current = None
-        self.w_baseline = None
-        self.portfolio_value = None
+        self.state = None
+        self.last_metrics = {}
         
         # Solver settings
-        self.solver_name = self.params.get('solver', 'OSQP')
+        self.solver_name = self.params.get('solver', 'CLARABEL')
         self.max_iter = self.params.get('max_iterations', 200)
         self.ftol = self.params.get('ftol', 1e-6)
-        self.warm_start_enabled = self.params.get('warm_start', True)
         
     def _load_config(self, config_path: Optional[str] = None) -> Dict:
         """
