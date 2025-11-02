@@ -225,8 +225,8 @@ Add to `public/index.html`:
 ## 📞 Support
 
 ### For CTPO-Specific Issues
-- GitHub Issues: https://github.com/YOUR_USERNAME/ctpo-portfolio-optimizer/issues
-- Email: your-email@example.com
+- GitHub Issues: https://github.com/Discovery099/CTPO-Portfolio-Optimizer/issues
+- GitHub Discussions: https://github.com/Discovery099/CTPO-Portfolio-Optimizer/discussions
 
 ### For Netlify Issues
 - Docs: https://docs.netlify.com
