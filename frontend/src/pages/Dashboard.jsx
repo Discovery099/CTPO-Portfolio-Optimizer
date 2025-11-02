@@ -254,13 +254,13 @@ const Dashboard = () => {
                 {/* Preset Portfolio Buttons */}
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 mb-2">Quick Select Portfolios:</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                     {Object.entries(presetPortfolios).map(([key, preset]) => (
                       <button
                         key={key}
                         onClick={() => handlePresetClick(key)}
                         className={`
-                          px-3 py-2 text-sm font-medium rounded-lg border-2 transition-all
+                          px-3 py-3 md:py-2 text-sm font-medium rounded-lg border-2 transition-all min-h-[48px] md:min-h-0
                           ${activePreset === key 
                             ? 'border-blue-500 bg-blue-50 text-blue-700' 
                             : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
