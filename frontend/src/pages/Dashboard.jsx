@@ -492,7 +492,7 @@ const Dashboard = () => {
             <Card className="shadow-lg border-0">
               <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
                 <CardTitle>Portfolio Allocation</CardTitle>
-                <CardDescription>Optimized weights using CDPR force balance</CardDescription>
+                <CardDescription>Optimized portfolio allocation</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
