@@ -114,11 +114,11 @@ user_problem_statement: |
 backend:
   - task: "CVXPY Optimization Solver"
     implemented: true
-    working: false
+    working: true
     file: "/app/ctpo-optimizer/ctpo/core/optimizer.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -126,6 +126,9 @@ backend:
       - working: false
         agent: "main"
         comment: "Identified root cause: infeasible constraints. Position_max=0.08 with 10 assets means max sum=0.8, but need sum=1.0. Fixed by making position limits adaptive based on n_assets."
+      - working: true
+        agent: "testing"
+        comment: "CRITICAL FIX APPLIED: Root cause was CVXPY solver incompatibility. OSQP (QP solver) cannot handle conic constraints in the problem. Fixed by changing default solver from 'OSQP' to 'CLARABEL' and adding solver-specific parameter handling. All optimization tests now pass: 10-asset (weights std: 0.1871, Sharpe: 1.301), 5-asset (weights std: 0.2449, Sharpe: 1.395), 3-asset (weights std: 0.4082, Sharpe: 3.689). Solver status: optimal, no more fallback to equal weights."
 
   - task: "Portfolio Constraints"
     implemented: true
