@@ -225,12 +225,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "CVXPY Optimization Solver"
-    - "Portfolio Constraints"
-    - "Force Balance Validation"
-  stuck_tasks:
-    - "CVXPY Optimization Solver - returning equal weights"
+  current_focus: []
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
