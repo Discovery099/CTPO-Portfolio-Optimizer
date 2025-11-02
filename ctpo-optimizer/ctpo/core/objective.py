@@ -86,18 +86,21 @@ def build_objective(w: cp.Variable,
                    mu: np.ndarray, 
                    Sigma: np.ndarray,
                    alpha_stress: float,
-                   params: Dict) -> cp.Minimize:
+                   params: Dict,
+                   A: np.ndarray = None,
+                   W: np.ndarray = None) -> cp.Minimize:
     """
     Build CVXPY objective function for CTPO.
     
     Minimize:
-    J(w) = ½ w^T Σ w + γ × α(t) × D(w) + λ_tc × ||Δw||_1 - λ × w^T μ
+    J(w) = ½ w^T Σ w + γ × α(t) × D(w) + λ_tc × ||Δw||_1 - λ × w^T μ + λ_fb × ||Aw - W||²
     
     Where:
     - First term: Portfolio variance (risk)
-    - Second term: Stress-activated diversification penalty
+    - Second term: Stress-activated diversification penalty  
     - Third term: Transaction cost penalty
     - Fourth term: Negative expected return (maximize)
+    - Fifth term: SOFT force balance penalty (NEW - replaces hard constraint)
     
     Args:
         w: Portfolio weight variable (CVXPY)
@@ -106,6 +109,8 @@ def build_objective(w: cp.Variable,
         Sigma: Covariance matrix (N x N)
         alpha_stress: Stress activation level [0, 1]
         params: Parameter dictionary
+        A: Structure matrix for force balance (optional)
+        W: Wrench vector for force balance (optional)
         
     Returns:
         CVXPY Minimize objective
@@ -114,6 +119,7 @@ def build_objective(w: cp.Variable,
     lambda_tc = params.get('transaction_cost_limit', 0.005)
     lambda_return = 1.0  # Weight for return term
     mu_d = params.get('diversification_gain', 0.24)
+    lambda_fb = params.get('force_balance_penalty', 0.001)  # SOFT penalty weight
     
     n = len(mu)
     w0 = np.ones(n) / n  # Equal-weight baseline
@@ -124,10 +130,10 @@ def build_objective(w: cp.Variable,
     # Return term (maximize, so negative in minimization)
     return_term = -lambda_return * (mu @ w)
     
-    # Diversification penalty (activates during stress)
-    # D(w) = ||w - w_0||² - μ_d (penalize deviation from equal-weight)
-    if alpha_stress > 0.01:  # Only add if in stress regime
-        div_penalty = gamma * alpha_stress * (cp.sum_squares(w - w0) - mu_d)
+    # Diversification penalty (REDUCED - allow more concentration)
+    # Only activate during extreme stress
+    if alpha_stress > 0.3:  # Raised threshold from 0.01 to 0.3
+        div_penalty = gamma * alpha_stress * 0.1 * cp.sum_squares(w - w0)  # Reduced weight
     else:
         div_penalty = 0
     
@@ -135,7 +141,15 @@ def build_objective(w: cp.Variable,
     Delta_w = w - w_prev
     tc_penalty = lambda_tc * cp.norm(Delta_w, 1)
     
+    # SOFT force balance penalty (NEW)
+    # Instead of hard constraint, add penalty for violating force balance
+    if A is not None and W is not None:
+        force_balance_residual = A @ w - W
+        fb_penalty = lambda_fb * cp.sum_squares(force_balance_residual)
+    else:
+        fb_penalty = 0
+    
     # Combined objective
-    objective = risk_term + return_term + div_penalty + tc_penalty
+    objective = risk_term + return_term + div_penalty + tc_penalty + fb_penalty
     
     return cp.Minimize(objective)
