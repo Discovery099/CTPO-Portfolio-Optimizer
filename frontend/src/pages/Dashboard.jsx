@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { Play, TrendingUp, PieChart, Activity, AlertCircle, CheckCircle2, Download } from 'lucide-react';
+import { Play, TrendingUp, PieChart, Activity, AlertCircle, CheckCircle2, Download, Shield, Zap, Database, Github, ArrowDown } from 'lucide-react';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
