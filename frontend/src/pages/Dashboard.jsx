@@ -15,6 +15,7 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 const Dashboard = () => {
   const [tickers, setTickers] = useState('AAPL,GOOGL,MSFT,AMZN,META,TSLA,NVDA,JPM,V,WMT');
   const [period, setPeriod] = useState('1y');
+  const [positionMax, setPositionMax] = useState(0.20);  // NEW: Default 20%
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
