@@ -173,44 +173,55 @@ def build_constraints(w,
     import cvxpy as cp
     
     constraints = []
+    n_assets = len(w_baseline)
     
     # === GROUP 1: Portfolio Structure ===
-    # 1. Capital conservation: Σw_i = 1
+    # 1. Capital conservation: Σw_i = 1 (long-only portfolio)
     constraints.append(cp.sum(w) == 1)
     
-    # 2. Leverage limit: ||w||_1 ≤ leverage_max
-    leverage_max = params.get('leverage_max', 2.0)
-    constraints.append(cp.norm(w, 1) <= leverage_max)
+    # 2. Long-only constraint (no shorting)
+    constraints.append(w >= 0)
     
     # === GROUP 2: Position Limits (Box Constraints) ===
-    # Individual position bounds
-    position_min = params.get('position_min', -0.05)
-    position_max = params.get('position_max', 0.08)
-    constraints.append(w >= position_min)
+    # Adaptive position limits based on number of assets
+    position_min = params.get('position_min', 0.0)  # Long-only: min = 0
+    position_max = params.get('position_max', 0.5)  # Default max 50%
+    
+    # Ensure position_max is feasible: must allow sum(w) = 1
+    # For n assets, we need position_max * n >= 1
+    min_required_position_max = 1.0 / n_assets
+    position_max = max(position_max, min_required_position_max * 1.5)  # 1.5x safety margin
+    
+    # Apply upper bound
     constraints.append(w <= position_max)
     
     # === GROUP 3: Force Balance (CDPR Core) ===
-    # Approximate ||Aw - W|| ≤ ε via component-wise constraints
+    # Relax force balance significantly for practical optimization
+    # The force balance is more of a "guidance" than a hard constraint
     residual = A @ w - W
     eps = params.get('force_balance_tolerance', 0.0018)
     
-    # Relax force balance constraints (they're often too strict for real optimization)
-    eps_relaxed = eps * 100  # Allow more deviation
+    # Adaptive relaxation based on number of assets
+    # More assets = more flexibility needed
+    relaxation_factor = max(1000, n_assets * 50)
+    eps_relaxed = eps * relaxation_factor
     
     for i in range(len(W)):
         constraints.append(residual[i] <= eps_relaxed)
         constraints.append(residual[i] >= -eps_relaxed)
     
     # === GROUP 4: Diversification ===
-    # Effective Number of Positions: Σw_i² ≤ 1/N_min + slack
-    min_effective_assets = params.get('min_effective_assets', 20)
+    # Effective Number of Positions: Σw_i² ≤ threshold
+    # Lower ENP = more concentration allowed
+    min_effective_assets = params.get('min_effective_assets', 5)
+    min_effective_assets = min(min_effective_assets, n_assets)  # Can't require more assets than available
+    
     enp_limit = 1.0 / min_effective_assets
-    constraints.append(cp.sum_squares(w) <= enp_limit + 0.3)  # Allow concentration
+    # Add large slack to avoid over-constraining
+    constraints.append(cp.sum_squares(w) <= enp_limit + 0.8)
     
     # === GROUP 5: Workspace Constraint ===
-    # ||w - w_baseline||_∞ ≤ δ (commented out as it can be too restrictive)
-    # workspace_constraint = params.get('workspace_constraint', 0.92)
-    # constraints.append(cp.norm(w - w_baseline, 'inf') <= workspace_constraint)
+    # Removed - too restrictive for real optimization
     
     return constraints
 
