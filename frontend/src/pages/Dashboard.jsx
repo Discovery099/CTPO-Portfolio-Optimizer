@@ -243,13 +243,13 @@ const Dashboard = () => {
                 <Input
                   data-testid="tickers-input"
                   value={tickers}
-                  onChange={(e) => {
-                    setTickers(e.target.value);
-                    setActivePreset(null); // Clear preset when manually editing
-                  }}
+                  onChange={(e) => handleTickersChange(e.target.value)}
                   placeholder="AAPL,GOOGL,MSFT..."
-                  className="font-mono"
+                  className={`font-mono ${validationError ? 'border-red-500 border-2 focus:ring-red-500' : ''}`}
                 />
+                <p className={`mt-1 text-sm ${validationError ? 'text-red-600' : 'text-gray-500'}`}>
+                  {validationError || 'Enter 2+ tickers separated by commas (e.g., AAPL,MSFT,GOOGL)'}
+                </p>
                 
                 {/* Preset Portfolio Buttons */}
                 <div className="mt-3">
