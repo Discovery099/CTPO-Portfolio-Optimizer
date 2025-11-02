@@ -49,13 +49,25 @@ class DataFetcher:
         else:
             data = yf.download(tickers, start=start_date, end=end_date, progress=False)
         
-        # Extract adjusted close prices
-        if 'Adj Close' in data.columns:
-            prices = data['Adj Close']
-        elif isinstance(data.columns, pd.MultiIndex):
-            prices = data['Adj Close']
+        # Handle different return structures from yfinance
+        if len(tickers) == 1:
+            # Single ticker returns simple DataFrame
+            if 'Adj Close' in data.columns:
+                prices = data[['Adj Close']].copy()
+                prices.columns = [tickers[0]]
+            else:
+                prices = data[['Close']].copy()
+                prices.columns = [tickers[0]]
         else:
-            prices = data
+            # Multiple tickers returns MultiIndex DataFrame
+            if isinstance(data.columns, pd.MultiIndex):
+                if 'Adj Close' in data.columns.get_level_values(0):
+                    prices = data['Adj Close'].copy()
+                else:
+                    prices = data['Close'].copy()
+            else:
+                # Fallback: assume it's already the right format
+                prices = data.copy()
         
         return prices
     
