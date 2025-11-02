@@ -296,14 +296,28 @@ class CTPOOptimizer:
             print(f"   Solver: {self.solver_name}, Max iterations: {self.max_iter}")
             print(f"   Constraints: {len(constraints)} total")
             
-            problem.solve(
-                solver=solver,
-                warm_start=self.warm_start_enabled,
-                max_iter=self.max_iter,
-                eps_abs=self.ftol,
-                eps_rel=self.ftol,
-                verbose=True  # Enable verbose for debugging
-            )
+            # Solver-specific parameters
+            solver_params = {
+                'verbose': True,
+                'warm_start': self.warm_start_enabled
+            }
+            
+            # Add solver-specific tolerance parameters
+            if self.solver_name in ['OSQP', 'SCS']:
+                solver_params.update({
+                    'max_iter': self.max_iter,
+                    'eps_abs': self.ftol,
+                    'eps_rel': self.ftol
+                })
+            elif self.solver_name == 'CLARABEL':
+                solver_params.update({
+                    'max_iter': self.max_iter,
+                    'tol_feas': self.ftol,
+                    'tol_gap_abs': self.ftol,
+                    'tol_gap_rel': self.ftol
+                })
+            
+            problem.solve(solver=solver, **solver_params)
             
             print(f"📊 Solver status: {problem.status}")
             print(f"   Objective value: {problem.value}")
