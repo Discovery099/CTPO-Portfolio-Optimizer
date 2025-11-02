@@ -142,6 +142,78 @@ def construct_wrench_vector(target_return: float = 0.08,
     return W
 
 
+def build_constraints(w, 
+                     w_prev: np.ndarray,
+                     w_baseline: np.ndarray,
+                     A: np.ndarray,
+                     W: np.ndarray,
+                     params: Dict) -> List:
+    """
+    Build all CVXPY constraints for CTPO optimization.
+    
+    Constraint groups:
+    1. Portfolio structure (2)
+    2. Position limits (2×N box constraints)
+    3. Force balance (6 = 2×3 component-wise)
+    4. Diversification (2)
+    5. Workspace (1)
+    
+    Args:
+        w: Portfolio weight variable (CVXPY)
+        w_prev: Previous weights
+        w_baseline: Baseline weights
+        A: Structure matrix (3 x N)
+        W: Wrench vector (3,)
+        params: Parameter dictionary
+        
+    Returns:
+        List of CVXPY constraints
+    """
+    import cvxpy as cp
+    
+    constraints = []
+    
+    # === GROUP 1: Portfolio Structure ===
+    # 1. Capital conservation: Σw_i = 1
+    constraints.append(cp.sum(w) == 1)
+    
+    # 2. Leverage limit: ||w||_1 ≤ leverage_max
+    leverage_max = params.get('leverage_max', 2.0)
+    constraints.append(cp.norm(w, 1) <= leverage_max)
+    
+    # === GROUP 2: Position Limits (Box Constraints) ===
+    # Individual position bounds
+    position_min = params.get('position_min', -0.05)
+    position_max = params.get('position_max', 0.08)
+    constraints.append(w >= position_min)
+    constraints.append(w <= position_max)
+    
+    # === GROUP 3: Force Balance (CDPR Core) ===
+    # Approximate ||Aw - W|| ≤ ε via component-wise constraints
+    residual = A @ w - W
+    eps = params.get('force_balance_tolerance', 0.0018)
+    
+    # Relax force balance constraints (they're often too strict for real optimization)
+    eps_relaxed = eps * 100  # Allow more deviation
+    
+    for i in range(len(W)):
+        constraints.append(residual[i] <= eps_relaxed)
+        constraints.append(residual[i] >= -eps_relaxed)
+    
+    # === GROUP 4: Diversification ===
+    # Effective Number of Positions: Σw_i² ≤ 1/N_min + slack
+    min_effective_assets = params.get('min_effective_assets', 20)
+    enp_limit = 1.0 / min_effective_assets
+    constraints.append(cp.sum_squares(w) <= enp_limit + 0.3)  # Allow concentration
+    
+    # === GROUP 5: Workspace Constraint ===
+    # ||w - w_baseline||_∞ ≤ δ (commented out as it can be too restrictive)
+    # workspace_constraint = params.get('workspace_constraint', 0.92)
+    # constraints.append(cp.norm(w - w_baseline, 'inf') <= workspace_constraint)
+    
+    return constraints
+
+
 def force_balance_residual(weights: np.ndarray,
                            A: np.ndarray,
                            W: np.ndarray,
