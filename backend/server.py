@@ -15,7 +15,7 @@ import pandas as pd
 # Import CTPO components
 import sys
 sys.path.insert(0, '/app/ctpo-optimizer')
-from ctpo.core.optimizer import CTPOOptimizer, CTPOState
+from ctpo.core.optimizer import CTPOOptimizer
 from ctpo.data.fetcher import DataFetcher
 from ctpo.metrics.performance import PerformanceMetrics
 from ctpo.risk.capm import CAPMModel
