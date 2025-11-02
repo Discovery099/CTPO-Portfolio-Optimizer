@@ -69,6 +69,30 @@ const Dashboard = () => {
     setActivePreset(presetKey);
     setError(null);
     setResult(null);
+    setValidationError(null);  // Clear validation error
+  };
+  
+  // NEW: Validate ticker input
+  const validateTickers = (tickerString) => {
+    const tickerList = tickerString.split(',').map(t => t.trim()).filter(t => t);
+    
+    if (tickerList.length === 0) {
+      return "Please enter at least one ticker";
+    }
+    
+    if (tickerList.length < 2) {
+      return "Need at least 2 assets for portfolio optimization";
+    }
+    
+    return null;
+  };
+  
+  // NEW: Handle ticker input change with validation
+  const handleTickersChange = (value) => {
+    setTickers(value);
+    setActivePreset(null); // Clear preset when manually editing
+    const error = validateTickers(value);
+    setValidationError(error);
   };
   
   // Export results to CSV
