@@ -134,6 +134,14 @@ async def optimize_portfolio(request: OptimizationRequest):
         
         returns = returns_df.values
         
+        # Validate we have enough assets after data fetch
+        n_assets = returns.shape[1] if len(returns.shape) > 1 else 1
+        if n_assets < 2:
+            raise HTTPException(
+                status_code=400,
+                detail="Portfolio optimization requires at least 2 assets with valid data. Please add more tickers."
+            )
+        
         # Initialize integrated risk model
         from ctpo.risk.risk_model import RiskModel
         
@@ -145,7 +153,14 @@ async def optimize_portfolio(request: OptimizationRequest):
         })
         
         # Update risk model with current data
-        risk_params = risk_model.update(returns_df, market_return=0.10)
+        try:
+            risk_params = risk_model.update(returns_df, market_return=0.10)
+        except Exception as risk_error:
+            logging.error(f"Risk model error: {str(risk_error)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to calculate risk metrics. This may be due to insufficient or invalid data: {str(risk_error)}"
+            )
         
         # Extract risk parameters
         Sigma = risk_params['Sigma']
@@ -156,10 +171,28 @@ async def optimize_portfolio(request: OptimizationRequest):
         # Run optimization with user-specified position limit
         optimizer = CTPOOptimizer()
         
-        weights = optimizer.optimize(
-            returns,
-            position_max=request.position_max  # Pass user's position limit
-        )
+        try:
+            weights = optimizer.optimize(
+                returns,
+                position_max=request.position_max  # Pass user's position limit
+            )
+        except Exception as opt_error:
+            logging.error(f"Optimization error: {str(opt_error)}")
+            error_msg = str(opt_error).lower()
+            if 'singular' in error_msg or 'ill-conditioned' in error_msg:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Portfolio optimization failed due to numerical issues. This may occur with highly correlated assets or insufficient data variance. Try different tickers or a longer time period."
+                )
+            elif 'infeasible' in error_msg:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Portfolio constraints are infeasible. Try adjusting the position limit or selecting different assets."
+                )
+            raise HTTPException(
+                status_code=500,
+                detail=f"Optimization failed: {str(opt_error)}"
+            )
         
         # Calculate performance metrics
         portfolio_returns = returns @ weights
