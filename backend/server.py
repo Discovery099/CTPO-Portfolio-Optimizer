@@ -66,7 +66,7 @@ async def root():
 @api_router.post("/optimize", response_model=OptimizationResult)
 async def optimize_portfolio(request: OptimizationRequest):
     """
-    Run CTPO optimization on selected tickers.
+    Run CTPO optimization on selected tickers using integrated risk models.
     """
     try:
         # Fetch data
@@ -77,13 +77,43 @@ async def optimize_portfolio(request: OptimizationRequest):
             raise HTTPException(status_code=400, detail="Insufficient data for optimization")
         
         returns = returns_df.values
-        market_returns = returns.mean(axis=1)
         
-        # Run optimization
+        # Initialize integrated risk model
+        from ctpo.risk.risk_model import RiskModel
+        
+        risk_model = RiskModel(params={
+            'risk_free_rate': 0.042,
+            'volatility_threshold': 0.23,
+            'correlation_breakdown': 0.85,
+            'lambda_stress': 0.15
+        })
+        
+        # Update risk model with current data
+        risk_params = risk_model.update(returns_df, market_return=0.10)
+        
+        # Extract risk parameters
+        mu = risk_params['mu']
+        Sigma = risk_params['Sigma']
+        betas = risk_params['betas']
+        volatilities = risk_params['volatilities']
+        sigma_market = risk_params['sigma_market']
+        alpha_stress = risk_params['alpha_stress']
+        avg_correlation = risk_params['avg_correlation']
+        
+        # Run optimization with integrated risk model
         optimizer = CTPOOptimizer()
-        weights = optimizer.optimize(returns, market_returns=market_returns)
         
-        # Get metrics
+        # Compute market returns for optimizer
+        market_returns = returns_df.mean(axis=1).values
+        
+        weights = optimizer.optimize(
+            returns,
+            covariance=Sigma,
+            expected_returns=mu,
+            market_returns=market_returns
+        )
+        
+        # Get optimizer metrics
         metrics = optimizer.get_metrics()
         
         # Calculate performance
@@ -92,20 +122,6 @@ async def optimize_portfolio(request: OptimizationRequest):
         max_dd = PerformanceMetrics.max_drawdown(portfolio_returns)
         sortino = PerformanceMetrics.sortino_ratio(portfolio_returns)
         annual_return = PerformanceMetrics.annualized_return(portfolio_returns)
-        
-        # Risk analysis
-        capm = CAPMModel()
-        expected_returns, betas = capm.estimate_expected_returns(returns, market_returns)
-        
-        # GARCH volatilities
-        volatilities = estimate_garch_volatilities(returns_df)
-        
-        # Stress correlation
-        stress_corr = StressCorrelation()
-        sigma_market = np.std(market_returns) * np.sqrt(252)
-        Sigma_stress, alpha_stress = stress_corr.compute_stress_covariance(
-            returns_df, volatilities, sigma_market
-        )
         
         # CDPR analysis
         A = construct_structure_matrix(betas, volatilities)
@@ -121,16 +137,16 @@ async def optimize_portfolio(request: OptimizationRequest):
         result = OptimizationResult(
             weights={ticker: float(w) for ticker, w in zip(request.tickers, weights)},
             metrics={
-                "expected_returns": {ticker: float(er) for ticker, er in zip(request.tickers, expected_returns)},
+                "expected_returns": {ticker: float(er) for ticker, er in zip(request.tickers, mu)},
                 "betas": {ticker: float(b) for ticker, b in zip(request.tickers, betas)},
                 "volatilities": {ticker: float(v) for ticker, v in zip(request.tickers, volatilities)},
                 "market_volatility": float(sigma_market),
-                "avg_correlation": float(metrics['avg_correlation']),
+                "avg_correlation": float(avg_correlation),
                 "stress_level": float(alpha_stress)
             },
             risk_analysis={
-                "covariance_condition_number": float(np.linalg.cond(Sigma_stress)),
-                "portfolio_volatility": float(np.sqrt(weights.T @ Sigma_stress @ weights)),
+                "covariance_condition_number": float(np.linalg.cond(Sigma)),
+                "portfolio_volatility": float(np.sqrt(weights.T @ Sigma @ weights)),
                 "diversification_ratio": float(enp)
             },
             cdpr_analysis={
@@ -160,6 +176,8 @@ async def optimize_portfolio(request: OptimizationRequest):
         
     except Exception as e:
         logging.error(f"Optimization error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
 
 @api_router.get("/tickers/popular")
