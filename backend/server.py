@@ -237,11 +237,31 @@ async def optimize_portfolio(request: OptimizationRequest):
         
         return result
         
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is (these are our user-friendly errors)
+        raise
     except Exception as e:
-        logging.error(f"Optimization error: {str(e)}")
+        logging.error(f"Unexpected optimization error: {str(e)}")
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
+        
+        # Check for common error patterns
+        error_msg = str(e).lower()
+        if '2-d' in error_msg or 'dimension' in error_msg:
+            raise HTTPException(
+                status_code=400,
+                detail="Portfolio optimization requires at least 2 assets. Please add more tickers."
+            )
+        elif 'ticker' in error_msg or 'symbol' in error_msg:
+            raise HTTPException(
+                status_code=400,
+                detail="One or more tickers are invalid. Please check your ticker symbols."
+            )
+        else:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"An unexpected error occurred during optimization. Please try again with different parameters or contact support if the issue persists."
+            )
 
 @api_router.get("/tickers/popular")
 async def get_popular_tickers():
