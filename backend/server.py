@@ -114,17 +114,12 @@ async def optimize_portfolio(request: OptimizationRequest):
         alpha_stress = risk_params['alpha_stress']
         avg_correlation = risk_params['avg_correlation']
         
-        # Run optimization with integrated risk model
+        # Run optimization with user-specified position limit
         optimizer = CTPOOptimizer()
-        
-        # Compute market returns for optimizer
-        market_returns = returns_df.mean(axis=1).values
         
         weights = optimizer.optimize(
             returns,
-            covariance=Sigma,
-            expected_returns=mu,
-            market_returns=market_returns
+            position_max=request.position_max  # Pass user's position limit
         )
         
         # Calculate performance
