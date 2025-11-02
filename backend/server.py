@@ -50,6 +50,7 @@ class OptimizationRequest(BaseModel):
     target_return: float = Field(default=0.08)
     max_risk: float = Field(default=0.15)
     min_effective_assets: int = Field(default=10)
+    position_max: float = Field(default=0.20)  # NEW: User-configurable position limit (default 20%)
 
 class BacktestRequest(BaseModel):
     tickers: List[str] = Field(default=["AAPL", "GOOGL", "MSFT", "AMZN", "META"])
