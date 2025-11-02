@@ -258,15 +258,15 @@ class CTPOBackendTester:
             return False
     
     def test_error_handling_invalid_ticker(self) -> bool:
-        """TEST: Invalid Ticker Error Handling (Insufficient Data Scenario)"""
+        """TEST: Invalid Ticker Error - EXACT FORMAT CHECK"""
         payload = {
-            "tickers": ["AAPL", "INVALIDXYZ"],  # Use 2 tickers to bypass single-stock validation
+            "tickers": ["INVALIDXYZ123"],
             "period": "1y",
             "position_max": 0.2
         }
         
         try:
-            print(f"\n🔧 Testing invalid ticker error handling...")
+            print(f"\n🔧 Testing invalid ticker error - EXACT FORMAT...")
             response = requests.post(
                 f"{self.backend_url}/api/optimize",
                 json=payload,
@@ -275,13 +275,17 @@ class CTPOBackendTester:
             
             if response.status_code == 400:
                 error_msg = response.json().get("detail", "")
-                # Accept either "Invalid ticker not found" OR "Insufficient historical data" as both are valid responses
-                if ("Invalid ticker(s):" in error_msg and "not found" in error_msg) or \
-                   ("Insufficient historical data" in error_msg):
-                    self.log_test("Invalid Ticker Error", True, f"Appropriate error message: {error_msg}")
+                expected_format = "Ticker [INVALIDXYZ123] not found. Please use valid Yahoo Finance symbols"
+                
+                # Check EXACT format with square brackets
+                if error_msg == expected_format:
+                    self.log_test("Invalid Ticker Error - EXACT FORMAT", True, f"✅ EXACT match: {error_msg}")
+                    return True
+                elif "Ticker [INVALIDXYZ123]" in error_msg and "not found" in error_msg and "Yahoo Finance" in error_msg:
+                    self.log_test("Invalid Ticker Error - CLOSE FORMAT", True, f"Close match: {error_msg}")
                     return True
                 else:
-                    self.log_test("Invalid Ticker Error", False, f"Unexpected error message: {error_msg}")
+                    self.log_test("Invalid Ticker Error - FORMAT MISMATCH", False, f"Expected: '{expected_format}' | Got: '{error_msg}'")
                     return False
             else:
                 self.log_test("Invalid Ticker Error", False, f"Expected 400, got {response.status_code}")
