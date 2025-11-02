@@ -117,9 +117,20 @@ class CTPOOptimizer:
             config_path: Path to configuration YAML file
         """
         self.config = self._load_config(config_path)
+        self.params = {**SYSTEM_PARAMS, **self.config.get('computational', {}), 
+                       **self.config.get('integration', {}), **self.config.get('solver', {})}
+        
         self.state = None
         self.weights = None
+        self.w_current = None
+        self.w_baseline = None
         self.portfolio_value = None
+        
+        # Solver settings
+        self.solver_name = self.params.get('solver', 'OSQP')
+        self.max_iter = self.params.get('max_iterations', 200)
+        self.ftol = self.params.get('ftol', 1e-6)
+        self.warm_start_enabled = self.params.get('warm_start', True)
         
     def _load_config(self, config_path: Optional[str] = None) -> Dict:
         """
@@ -141,7 +152,6 @@ class CTPOOptimizer:
             with open(config_path, 'r') as f:
                 return yaml.safe_load(f)
         else:
-            # Return default config if file doesn't exist
             return self._default_config()
     
     def _default_config(self) -> Dict:
@@ -152,35 +162,40 @@ class CTPOOptimizer:
             Default config dictionary
         """
         return {
-            'physical': {
-                'n_assets': 152,
-                'volatility_threshold': 0.23,
-                'correlation_breakdown': 0.85,
-                'risk_free_rate': 0.042
-            },
             'computational': {
                 'tension_regularization': 0.0075,
-                'workspace_constraint': 0.92,
                 'cable_stiffness': 310.0,
-                'force_balance_tolerance': 0.0018,
-                'diversification_gain': 0.24
+                'force_balance_tolerance': 0.0018
             },
             'integration': {
                 'position_max': 0.08,
                 'position_min': -0.05,
-                'min_effective_assets': 20
+                'min_effective_assets': 20,
+                'leverage_max': 2.0
             },
             'solver': {
                 'algorithm': 'OSQP',
                 'max_iterations': 200,
-                'ftol': 1e-6
-            },
-            'targets': {
-                'target_return': 0.08,
-                'max_risk': 0.15,
-                'min_effective_assets': 20
+                'ftol': 1e-6,
+                'warm_start': True
             }
         }
+    
+    def _compute_stress_level(self, sigma_market: float) -> float:
+        """
+        Compute stress activation parameter.
+        
+        α(t) = min(1, max(0, (σ_M - threshold) / 0.27))
+        
+        Args:
+            sigma_market: Market volatility
+            
+        Returns:
+            Stress level in [0, 1]
+        """
+        vol_threshold = self.params.get('volatility_threshold', 0.23)
+        alpha = (sigma_market - vol_threshold) / 0.27
+        return np.clip(alpha, 0.0, 1.0)
     
     def initialize_state(self, n_assets: int) -> CTPOState:
         """
@@ -193,6 +208,8 @@ class CTPOOptimizer:
             Initialized state
         """
         self.state = CTPOState(n_assets)
+        self.w_current = np.ones(n_assets) / n_assets
+        self.w_baseline = self.w_current.copy()
         return self.state
     
     def optimize(self, 
@@ -201,7 +218,7 @@ class CTPOOptimizer:
                  expected_returns: Optional[np.ndarray] = None,
                  market_returns: Optional[np.ndarray] = None) -> np.ndarray:
         """
-        Optimize portfolio weights using CDPR force balance.
+        Optimize portfolio weights using CDPR force balance with CVXPY.
         
         Args:
             returns: Historical returns matrix (T x N)
@@ -212,20 +229,121 @@ class CTPOOptimizer:
         Returns:
             Optimal portfolio weights (N,)
         """
+        tic = perf_counter()
+        
         n_assets = returns.shape[1]
         
         # Initialize or update state
         if self.state is None or self.state.n != n_assets:
             self.initialize_state(n_assets)
         
+        if self.w_current is None:
+            self.w_current = np.ones(n_assets) / n_assets
+        if self.w_baseline is None:
+            self.w_baseline = self.w_current.copy()
+        
         self.state.update_from_data(returns, market_returns)
         
-        # For CHUNK 2: Return equal weights (CDPR optimization in CHUNK 3)
-        # This will be replaced with full CVXPY optimization
-        weights = np.ones(n_assets) / n_assets
-        self.weights = weights
+        # Use provided or computed values
+        if covariance is None:
+            covariance = self.state.Sigma
+        if expected_returns is None:
+            expected_returns = self.state.mu
+        if market_returns is None:
+            market_returns = returns.mean(axis=1)
         
-        return weights
+        # Compute stress level
+        sigma_market = np.std(market_returns) * np.sqrt(252)  # Annualized
+        alpha_stress = self._compute_stress_level(sigma_market)
+        
+        # Get betas and volatilities for CDPR structure
+        from ..risk.capm import CAPMModel
+        from ..risk.garch import estimate_garch_volatilities
+        import pandas as pd
+        
+        capm = CAPMModel()
+        betas = capm.calculate_betas(returns, market_returns)
+        
+        # Use simpler volatility estimation for speed
+        volatilities = np.std(returns, axis=0)
+        
+        # Construct CDPR structure
+        A = construct_structure_matrix(betas, volatilities, self.params['cable_stiffness'])
+        W = construct_wrench_vector(
+            target_return=0.08,
+            max_risk=0.15,
+            min_eff_assets=min(self.params['min_effective_assets'], n_assets)
+        )
+        
+        # Define optimization variable
+        w = cp.Variable(n_assets)
+        
+        # Build objective
+        objective = build_objective(w, self.w_current, expected_returns, covariance, alpha_stress, self.params)
+        
+        # Build constraints
+        constraints = build_constraints(w, self.w_current, self.w_baseline, A, W, self.params)
+        
+        # Solve
+        problem = cp.Problem(objective, constraints)
+        
+        try:
+            # Map solver name
+            solver_map = {'OSQP': cp.OSQP, 'SCS': cp.SCS, 'ECOS': cp.ECOS}
+            solver = solver_map.get(self.solver_name, cp.OSQP)
+            
+            problem.solve(
+                solver=solver,
+                warm_start=self.warm_start_enabled,
+                max_iter=self.max_iter,
+                eps_abs=self.ftol,
+                eps_rel=self.ftol,
+                verbose=False
+            )
+            
+            if problem.status not in ['optimal', 'optimal_inaccurate']:
+                print(f"⚠️  Solver status: {problem.status}. Using fallback.")
+                w_optimal = self.w_baseline.copy()
+                status = 'fallback'
+            else:
+                w_optimal = w.value
+                if w_optimal is None:
+                    w_optimal = self.w_baseline.copy()
+                    status = 'fallback'
+                else:
+                    status = problem.status
+                    # Normalize to ensure sum = 1
+                    w_optimal = w_optimal / np.sum(w_optimal)
+                
+        except Exception as e:
+            print(f"❌ Solver failed: {e}. Using equal-weight fallback.")
+            w_optimal = self.w_baseline.copy()
+            status = 'error'
+        
+        toc = perf_counter()
+        solve_time_ms = (toc - tic) * 1000
+        
+        # Update state
+        self.weights = w_optimal
+        self.w_current = w_optimal
+        
+        # Store metrics
+        self.last_metrics = {
+            'solve_time_ms': solve_time_ms,
+            'objective_value': problem.value if status == 'optimal' else None,
+            'status': status,
+            'alpha_stress': alpha_stress,
+            'effective_assets': 1.0 / np.sum(w_optimal**2) if np.sum(w_optimal**2) > 0 else n_assets,
+            'turnover': np.sum(np.abs(w_optimal - self.w_baseline)),
+            'max_position': np.max(np.abs(w_optimal)),
+            'leverage': np.sum(np.abs(w_optimal))
+        }
+        
+        # Validate timing constraint
+        if solve_time_ms > 50:
+            print(f"⚠️  Solve time {solve_time_ms:.1f} ms exceeds 50 ms target")
+        
+        return w_optimal
     
     def get_metrics(self) -> Dict:
         """
@@ -245,7 +363,7 @@ class CTPOOptimizer:
         # Compute condition number
         cond_number = np.linalg.cond(self.state.Sigma) if self.state.Sigma is not None else None
         
-        return {
+        metrics = {
             'weights': self.weights,
             'expected_returns': self.state.mu,
             'market_volatility': self.state.sigma_market,
@@ -253,3 +371,9 @@ class CTPOOptimizer:
             'avg_correlation': self.state.rho_realized,
             'condition_number': cond_number
         }
+        
+        # Add last solve metrics if available
+        if hasattr(self, 'last_metrics'):
+            metrics.update(self.last_metrics)
+        
+        return metrics
