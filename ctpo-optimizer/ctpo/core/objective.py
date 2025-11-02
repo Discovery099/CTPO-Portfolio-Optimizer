@@ -117,7 +117,7 @@ def build_objective(w: cp.Variable,
     """
     gamma = params.get('tension_regularization', 0.0075)
     lambda_tc = params.get('transaction_cost_limit', 0.005)
-    lambda_return = 1.0  # Weight for return term
+    lambda_return = 5.0  # INCREASED from 1.0 to 5.0 - stronger return focus
     mu_d = params.get('diversification_gain', 0.24)
     lambda_fb = params.get('force_balance_penalty', 0.001)  # SOFT penalty weight
     
