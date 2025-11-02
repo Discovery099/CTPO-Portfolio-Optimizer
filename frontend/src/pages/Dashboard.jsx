@@ -647,6 +647,94 @@ const Dashboard = () => {
             </Card>
           </div>
         )}
+        
+        {/* How It Works Section */}
+        <Card className="mt-8 shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
+            <CardTitle>❓ How CTPO Works</CardTitle>
+            <CardDescription>Understanding the optimization process</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="space-y-4 text-gray-700">
+              <p className="font-medium text-lg">
+                CTPO uses <strong>Modern Portfolio Theory (mean-variance optimization)</strong> to find the optimal balance between risk and return.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <h3 className="font-semibold text-blue-600 mb-3">📋 Step-by-Step Process</h3>
+                  <ol className="space-y-2 list-decimal list-inside">
+                    <li><strong>Enter tickers:</strong> Add 2+ stock symbols (e.g., AAPL, MSFT, GOOGL)</li>
+                    <li><strong>Choose time period:</strong> 1 Year recommended for optimal data</li>
+                    <li><strong>Set position limits:</strong> Control concentration vs diversification</li>
+                    <li><strong>Click optimize:</strong> Get intelligent portfolio weights in &lt;1 second</li>
+                  </ol>
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold text-blue-600 mb-3">⚙️ The Algorithm</h3>
+                  <ul className="space-y-2 list-disc list-inside">
+                    <li>Maximizes risk-adjusted returns (Sharpe ratio)</li>
+                    <li>Minimizes portfolio volatility</li>
+                    <li>Respects your position limits</li>
+                    <li>Based on historical data (Yahoo Finance)</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm text-amber-900 flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Important:</strong> Past performance does not guarantee future results. This tool is for educational purposes only and should not be considered financial advice.
+                  </span>
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Disclaimers & Footer */}
+        <div className="mt-12 border-t border-gray-200 pt-8 pb-12">
+          <div className="max-w-5xl mx-auto">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-600" />
+              Important Disclaimers
+            </h3>
+            
+            <div className="space-y-3 text-sm text-gray-600 mb-6">
+              <p>
+                <strong className="text-gray-800">⚠️ Not Financial Advice:</strong> This tool is for educational purposes only. It does not provide personalized financial advice. Consult a licensed financial advisor before making investment decisions.
+              </p>
+              <p>
+                <strong className="text-gray-800">📊 Past Performance:</strong> Historical performance does not guarantee future results. Market conditions change, and past trends may not continue.
+              </p>
+              <p>
+                <strong className="text-gray-800">🎓 Educational Tool:</strong> CTPO demonstrates Modern Portfolio Theory concepts. It does not account for taxes, transaction costs, bid-ask spreads, or black swan events.
+              </p>
+              <p>
+                <strong className="text-gray-800">🔓 Open Source:</strong> This tool is provided "as-is" without warranties. Source code available on GitHub under MIT License.
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+              <a href="#" className="hover:text-blue-600 transition-colors">About</a>
+              <span>|</span>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+                <Github className="w-4 h-4" />
+                GitHub
+              </a>
+              <span>|</span>
+              <a href="#" className="hover:text-blue-600 transition-colors">Methodology</a>
+              <span>|</span>
+              <a href="#" className="hover:text-blue-600 transition-colors">Contact</a>
+            </div>
+            
+            <p className="mt-6 text-xs text-gray-400">
+              © 2025 CTPO Portfolio Optimizer. Free & Open Source. Made with Emergent AI.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
