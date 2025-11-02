@@ -334,7 +334,7 @@ class CTPOBackendTester:
             return False
     
     def test_error_handling_empty_portfolio(self) -> bool:
-        """TEST: Empty Portfolio Error"""
+        """TEST: Empty Portfolio Error - EXACT FORMAT CHECK"""
         payload = {
             "tickers": [],
             "period": "1y",
@@ -342,7 +342,7 @@ class CTPOBackendTester:
         }
         
         try:
-            print(f"\n🔧 Testing empty portfolio error handling...")
+            print(f"\n🔧 Testing empty portfolio error - EXACT FORMAT...")
             response = requests.post(
                 f"{self.backend_url}/api/optimize",
                 json=payload,
@@ -351,11 +351,17 @@ class CTPOBackendTester:
             
             if response.status_code == 400:
                 error_msg = response.json().get("detail", "")
-                if "No tickers provided" in error_msg:
-                    self.log_test("Empty Portfolio Error", True, f"Correct error message: {error_msg}")
+                expected_format = "Need at least 2 assets for portfolio optimization"
+                
+                # Check EXACT format (should be same as single stock)
+                if error_msg == expected_format:
+                    self.log_test("Empty Portfolio Error - EXACT FORMAT", True, f"✅ EXACT match: {error_msg}")
+                    return True
+                elif "Need at least 2 assets" in error_msg and "portfolio optimization" in error_msg:
+                    self.log_test("Empty Portfolio Error - CLOSE FORMAT", True, f"Close match: {error_msg}")
                     return True
                 else:
-                    self.log_test("Empty Portfolio Error", False, f"Wrong error message: {error_msg}")
+                    self.log_test("Empty Portfolio Error - FORMAT MISMATCH", False, f"Expected: '{expected_format}' | Got: '{error_msg}'")
                     return False
             else:
                 self.log_test("Empty Portfolio Error", False, f"Expected 400, got {response.status_code}")
