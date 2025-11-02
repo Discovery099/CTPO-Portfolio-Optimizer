@@ -113,9 +113,6 @@ async def optimize_portfolio(request: OptimizationRequest):
             market_returns=market_returns
         )
         
-        # Get optimizer metrics
-        metrics = optimizer.get_metrics()
-        
         # Calculate performance
         portfolio_returns = returns @ weights
         sharpe = PerformanceMetrics.sharpe_ratio(portfolio_returns)
