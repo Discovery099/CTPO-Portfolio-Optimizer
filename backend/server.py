@@ -100,10 +100,7 @@ async def optimize_portfolio(request: OptimizationRequest):
         risk_params = risk_model.update(returns_df, market_return=0.10)
         
         # Extract risk parameters
-        mu = risk_params['mu']
         Sigma = risk_params['Sigma']
-        betas = risk_params['betas']
-        volatilities = risk_params['volatilities']
         sigma_market = risk_params['sigma_market']
         alpha_stress = risk_params['alpha_stress']
         avg_correlation = risk_params['avg_correlation']
