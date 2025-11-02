@@ -77,12 +77,60 @@ async def optimize_portfolio(request: OptimizationRequest):
     Run CTPO optimization on selected tickers using integrated risk models.
     """
     try:
-        # Fetch data
+        # Validate inputs
+        if not request.tickers or len(request.tickers) == 0:
+            raise HTTPException(
+                status_code=400, 
+                detail="No tickers provided. Please add at least 2 assets to your portfolio."
+            )
+        
+        if len(request.tickers) == 1:
+            raise HTTPException(
+                status_code=400, 
+                detail="Portfolio optimization requires at least 2 assets. Please add more tickers to your portfolio."
+            )
+        
+        # Validate ticker format (basic check)
+        invalid_tickers = [t for t in request.tickers if not t or len(t) > 10 or not t.replace('.', '').replace('-', '').isalnum()]
+        if invalid_tickers:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid ticker format: {', '.join(invalid_tickers)}. Please use valid ticker symbols (e.g., AAPL, GOOGL)."
+            )
+        
+        # Fetch data with enhanced error handling
         fetcher = DataFetcher()
-        returns_df = fetcher.fetch_returns(request.tickers, period=request.period)
+        try:
+            returns_df = fetcher.fetch_returns(request.tickers, period=request.period)
+        except Exception as fetch_error:
+            # Check if it's a ticker not found error
+            error_msg = str(fetch_error).lower()
+            if 'no data' in error_msg or 'not found' in error_msg or 'invalid' in error_msg:
+                # Try to identify which tickers failed
+                failed_tickers = []
+                for ticker in request.tickers:
+                    try:
+                        test_df = fetcher.fetch_returns([ticker], period=request.period)
+                        if test_df.empty:
+                            failed_tickers.append(ticker)
+                    except:
+                        failed_tickers.append(ticker)
+                
+                if failed_tickers:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Invalid ticker(s): {', '.join(failed_tickers)} not found. Please check the ticker symbols and try again."
+                    )
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to fetch market data: {str(fetch_error)}"
+            )
         
         if returns_df.empty or len(returns_df) < 50:
-            raise HTTPException(status_code=400, detail="Insufficient data for optimization")
+            raise HTTPException(
+                status_code=400, 
+                detail="Insufficient historical data. Portfolio optimization requires at least 50 days of price history. Please try different tickers or a longer time period."
+            )
         
         returns = returns_df.values
         
