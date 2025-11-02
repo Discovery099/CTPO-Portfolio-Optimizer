@@ -289,8 +289,8 @@ class CTPOOptimizer:
         
         try:
             # Map solver name
-            solver_map = {'OSQP': cp.OSQP, 'SCS': cp.SCS, 'ECOS': cp.ECOS}
-            solver = solver_map.get(self.solver_name, cp.OSQP)
+            solver_map = {'OSQP': cp.OSQP, 'SCS': cp.SCS, 'ECOS': cp.ECOS, 'CLARABEL': cp.CLARABEL}
+            solver = solver_map.get(self.solver_name, cp.SCS)
             
             print(f"🔧 Starting optimization with {n_assets} assets...")
             print(f"   Solver: {self.solver_name}, Max iterations: {self.max_iter}")
