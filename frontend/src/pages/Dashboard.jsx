@@ -32,7 +32,8 @@ const Dashboard = () => {
         period: period,
         target_return: 0.08,
         max_risk: 0.15,
-        min_effective_assets: Math.min(10, tickerList.length)
+        min_effective_assets: Math.min(10, tickerList.length),
+        position_max: positionMax  // NEW: Pass user's position limit
       });
       
       setResult(response.data);
